@@ -121,6 +121,8 @@ Note that [hydra](https://hydra.cc/docs/intro/) is also employed in the project;
 
 ### How to Run
 
+**To run the code locally**:
+
 ```bash
 cd path-to-main-mlflow-file
 # All steps are executed, in the order defined in main.py
@@ -139,7 +141,7 @@ mlflow run . -P hydra_options="main.execute_steps='random_forest,evaluate'"
 mlflow run . -P hydra_options="main.project_name='music_genre_classification_prod'"
 ```
 
-Since the repository is publicly released, anyone can run the code as follows:
+Since the repository is publicly released, anyone can **run the code remotely** as follows:
 
 ```bash
 # Go to a new empty folder
