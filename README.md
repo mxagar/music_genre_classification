@@ -1,2 +1,7 @@
-# music_genre_classification
-Reproducible pipeline of a music genre classification project.
+# Music Genre Classification
+
+Reproducible pipeline of a music genre classification project. Used tools:
+
+- Scikit-Learn
+- Weights and Biases
+- MLflow
