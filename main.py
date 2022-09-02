@@ -20,7 +20,7 @@ def go(config: DictConfig):
         # This was passed on the command line as a comma-separated list of steps
         steps_to_execute = config["main"]["execute_steps"].split(",")
     else:
-        assert isinstance(config["main"]["execute_steps"], list)
+        #assert isinstance(config["main"]["execute_steps"], list)
         steps_to_execute = config["main"]["execute_steps"]
 
     # Download step
@@ -48,10 +48,11 @@ def go(config: DictConfig):
             os.path.join(root_path, "preprocess"),
             "main",
             parameters={
-                "input_artifact": config["data"]["file_url"],
-                "artifact_name": "raw_data.parquet",
-                "artifact_type": "raw_data",
-                "artifact_description": "Data as downloaded"
+                # the project path is not necessary
+                "input_artifact": "raw_data.parquet:latest",
+                "artifact_name": "preprocessed_data.csv",
+                "artifact_type": "preprocessed_data",
+                "artifact_description": "Preprocessed data: missing values imputed and duplicated dropped"
             }
         )
         
@@ -65,10 +66,10 @@ def go(config: DictConfig):
             os.path.join(root_path, "check_data"),
             "main",
             parameters={
-                "reference_artifact": config["data"]["file_url"],
-                "sample_artifact": "raw_data.parquet",
-                "ks_alpha": "raw_data"
-            },
+                "reference_artifact": config["data"]["reference_dataset"],
+                "sample_artifact": "preprocessed_data.csv:latest",
+                "ks_alpha": config["data"]["ks_alpha"]
+            }
         )
 
     if "segregate" in steps_to_execute:
@@ -84,12 +85,12 @@ def go(config: DictConfig):
             os.path.join(root_path, "segregate"),
             "main",
             parameters={
-                "input_artifact": config["data"]["file_url"],
-                "artifact_root": "raw_data.parquet",
-                "artifact_type": "raw_data",
-                "test_size": "raw_data",
-                "random_state": "raw_data",
-                "stratify": "raw_data"
+                "input_artifact": "preprocessed_data.csv:latest",
+                "artifact_root": "data",
+                "artifact_type": "segregated_data",
+                "test_size": config["data"]["test_size"],
+                #"random_state": 42, # already default value in MLproject
+                "stratify": config["data"]["stratify"]
             }
         )
         
@@ -112,12 +113,12 @@ def go(config: DictConfig):
             os.path.join(root_path, "random_forest"),
             "main",
             parameters={
-                "train_data": config["data"]["file_url"],
-                "model_config": "raw_data.parquet",
-                "export_artifact": "raw_data",
-                "random_seed": "raw_data",
-                "val_size": "raw_data",
-                "stratify": "raw_data"
+                "train_data": "data_train.csv:latest",
+                "model_config": model_config,
+                "export_artifact": config["random_forest_pipeline"]["export_artifact"],
+                "random_seed": config["random_forest_pipeline"]["random_forest"]["random_state"],
+                "val_size": config["data"]["val_size"],
+                "stratify": config["data"]["stratify"]
             }
         )
 
@@ -130,8 +131,8 @@ def go(config: DictConfig):
             os.path.join(root_path, "evaluate"),
             "main",
             parameters={
-                "model_export": config["data"]["file_url"],
-                "test_data": "raw_data.parquet"
+                "model_export": f"{config['random_forest_pipeline']['export_artifact']}:latest",
+                "test_data": "data_test.csv:latest"
             }
         )
 

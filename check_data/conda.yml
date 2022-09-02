@@ -3,9 +3,11 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - python=3.8
   - pandas=1.2.3
   - pip=20.3.3
   - pytest=6.2.2
   - scipy=1.6.1
   - pip:
+      - protobuf==3.20
       - wandb==0.10.21

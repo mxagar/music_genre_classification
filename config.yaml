@@ -16,6 +16,9 @@ main:
   # pseudo-random operations
   random_seed: 42
 data:
+  # We can use either a web link or a file path for files
+  # but in the current implementation an URL passes to the requests module is required
+  #file_url: "dataset/genres_mod.parquet"
   file_url: "https://github.com/udacity/nd0821-c2-build-model-workflow-exercises/blob/master/lesson-2-data-exploration-and-preparation/exercises/exercise_4/starter/genres_mod.parquet?raw=true"
   reference_dataset: "exercise_14/preprocessed_data.csv:latest"
   # Threshold for Kolomorov-Smirnov test
