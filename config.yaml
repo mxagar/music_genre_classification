@@ -1,7 +1,10 @@
 main:
-  project_name: exercise_14
+  project_name: exercise_14 # production name: music_genre_classification_prod; add tag prod
   experiment_name: dev
   execute_steps:
+    # In production we don't need all steps, so we can override execute_steps, e.g.:
+    # mlflow run . -P hydra_options="main.execute_steps='random_forest'"
+    # mlflow run . -P hydra_options="main.execute_steps='download,preprocess'"
     - download
     - preprocess
     - check_data
