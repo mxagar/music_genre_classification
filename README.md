@@ -139,6 +139,16 @@ mlflow run . -P hydra_options="main.execute_steps='random_forest,evaluate'"
 mlflow run . -P hydra_options="main.project_name='music_genre_classification_prod'"
 ```
 
+Since there are releases, anyone can run the code as follows:
+
+```bash
+# General command
+mlflow run -v [tag] [URL of your Github repo]
+
+# Concrete command for the exercise in section 6.1
+mlflow run -v 0.0.1 https://github.com/mxagar/music_genre_classification
+```
+
 ### Interesting Links
 
 - This repository doesn't focus on the techniques for data processing and modeling; if you are interested in those topics, you can visit my  [Guide on EDA, Data Cleaning and Feature Engineering](https://github.com/mxagar/eda_fe_summary).
