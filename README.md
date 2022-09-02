@@ -139,14 +139,24 @@ mlflow run . -P hydra_options="main.execute_steps='random_forest,evaluate'"
 mlflow run . -P hydra_options="main.project_name='music_genre_classification_prod'"
 ```
 
-Since there are releases, anyone can run the code as follows:
+Since the repository is publicly released, anyone can run the code as follows:
 
 ```bash
+# Go to a new empty folder
+cd new-empty-folder
+
 # General command
-mlflow run -v [tag] [URL of your Github repo]
+mlflow run -v [commit hash or branch name] [URL of your Github repo]
 
 # Concrete command for the exercise in section 6.1
-mlflow run -v 0.0.1 https://github.com/mxagar/music_genre_classification
+# We point to the commit hash of tag 0.0.1
+# Note: currently, we cannot put tag names in -v
+mlflow run -v 82f17d94e0800811e81f4d55c0442d3189ed0a63 git@github.com:mxagar/music_genre_classification.git
+
+# Project name changed
+# We point to the branch main; usually, we should point to a branch like master / stable, etc.
+# Note: currently, we cannot put tag names in -v
+mlflow run git@github.com:mxagar/music_genre_classification.git -v main -P hydra_options="main.project_name=remote_execution"
 ```
 
 ### Interesting Links
