@@ -19,7 +19,8 @@ data:
   # We can use either a web link or a file path for files
   # but in the current implementation an URL passes to the requests module is required
   #file_url: "dataset/genres_mod.parquet"
-  file_url: "https://github.com/udacity/nd0821-c2-build-model-workflow-exercises/blob/master/lesson-2-data-exploration-and-preparation/exercises/exercise_4/starter/genres_mod.parquet?raw=true"
+  #file_url: "https://github.com/udacity/nd0821-c2-build-model-workflow-exercises/blob/master/lesson-2-data-exploration-and-preparation/exercises/exercise_4/starter/genres_mod.parquet?raw=true"
+  file_url: "https://github.com/mxagar/music_genre_classification/blob/main/dataset/genres_mod.parquet?raw=true"
   reference_dataset: "exercise_14/preprocessed_data.csv:latest"
   # Threshold for Kolomorov-Smirnov test
   ks_alpha: 0.05
@@ -30,6 +31,11 @@ data:
   stratify: genre
 random_forest_pipeline:
   random_forest:
+    # Whenever we have model or other object with many parameters
+    # we should write config files for them.
+    # That is easier than passing parameters in the code or via CLI
+    # and we can guarantee compatibility in the code in case the model API changes
+    # (i.e., we would simply change the config file).
     n_estimators: 100
     criterion: 'gini'
     max_depth: 13

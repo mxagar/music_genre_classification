@@ -27,9 +27,9 @@ def go(config: DictConfig):
     if "download" in steps_to_execute:
 
         _ = mlflow.run(
-            os.path.join(root_path, "download"),
-            "main",
-            parameters={
+            os.path.join(root_path, "download"), # path of component
+            "main", # entry point
+            parameters={ # parameters passed to MLproject
                 "file_url": config["data"]["file_url"],
                 "artifact_name": "raw_data.parquet",
                 "artifact_type": "raw_data",
@@ -97,6 +97,13 @@ def go(config: DictConfig):
     if "random_forest" in steps_to_execute:
 
         # Serialize decision tree configuration
+        # Whenever we have model or other object with many parameters
+        # we should write config files for them.
+        # That is easier than passing parameters in the code or via CLI
+        # and we can guarantee compatibility in the code in case the model API changes
+        # (i.e., we would simply change the config file).
+        # Here a yaml is created from the relevant section of the config file
+        # and passed as a dictionary to the model later on.
         model_config = os.path.abspath("random_forest_config.yml")
 
         with open(model_config, "w+") as fp:
