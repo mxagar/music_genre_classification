@@ -1,10 +1,12 @@
 # Music Genre Classification: A Boilerplate ML Pipeline with MLflow and Weights & Biases
 
-This example is a boilerplate for generating non-complex and reproducible ML pipelines with [MLflow](https://www.mlflow.org) and [Weights and Biases](https://wandb.ai/site). The pipeline is divided into the typical steps or components in a pipeline, carried out in order. 
+This example is a boilerplate for generating non-complex and reproducible ML pipelines with [MLflow](https://www.mlflow.org) and [Weights and Biases](https://wandb.ai/site). [Scikit-Learn](https://scikit-learn.org/stable/) is used as engine for the data preprocessing and modeling (concretely, a random forests model is trained). The pipeline is divided into the typical steps or components in a pipeline, carried out in order. 
 
 The example comes originally from an exercise in [udacity-cd0581-building-a-reproducible-model-workflow-exercises](https://github.com/mxagar/udacity-cd0581-building-a-reproducible-model-workflow-exercises), which I completed and extended with comments and some other minor features.
 
 Table of contents:
+
+- [Music Genre Classification: A Boilerplate ML Pipeline with MLflow and Weights & Biases](#music-genre-classification-a-boilerplate-ml-pipeline-with-mlflow-and-weights--biases)
     - [Overview of Boilerplate Project Structure](#overview-of-boilerplate-project-structure)
     - [Dependencies](#dependencies)
     - [How to Run](#how-to-run)
@@ -84,7 +86,7 @@ Obviously, not all steps need to be carried out every time; to that end, with ha
 
 All project and component dependencies are specified in the `conda.yaml` files.
 
-For the ML operations, you require 
+For the ML operations, you require the following tools:
 
 - [MLflow](https://www.mlflow.org): management of step parametrized step executions.
 - [Weights and Biases](https://wandb.ai/site): tracking of experiments, artifacts, metrics, etc.
@@ -97,7 +99,7 @@ In order to install those tools:
 # ... or activate an existing one:
 conda activate ds-env
 
-# Install missing packages
+# Install MLflow packages
 conda install mlflow requests -c conda-forge
 
 # Make sure pip is pointing to the pip in the conda environment
@@ -114,6 +116,8 @@ wandb login
 # Copy and paste API key on Terminal, as requested
 # Done!
 ```
+
+Note that [hydra](https://hydra.cc/docs/intro/) is also employed in the project; the dependency is resolved with the `conda.yaml` environment configuration files.
 
 ### How to Run
 
