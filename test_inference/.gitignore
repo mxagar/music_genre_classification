@@ -1,0 +1,8 @@
+model
+.DS_Store
+*.json
+*.csv
+.vscode
+.ipynb_checkpoints
+__pycache__
+artifacts
