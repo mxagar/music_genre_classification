@@ -68,7 +68,7 @@ Pipeline steps or components:
     - A parquet file of songs and their attributes is downloaded from a URL; the songs need to be classified according to their genre.
     - The dataset it uploaded to Weights and Biases as an artifact.
 2. `preprocess/`
-    - Raw dataset artifact is downloaded and preprocessed: missing values imputed and duplicates removed.
+    - Raw dataset artifact is downloaded and preprocessed: missing values imputed and duplicates removed; additionally, a new feature `text_feature` is created.
 3. `check_data/`
     - Data validation: pre-processed dataset is checked using `pytest`.
     - In the dummy example, the reference and sample datasets are the same, and only deterministic tests are carried out, but we could have used a reference dataset for non-deterministic tests.
@@ -87,7 +87,10 @@ Pipeline steps or components:
 
 Obviously, not all steps need to be carried out every time; to that end, with have the parameter `main.execute_steps` in the `config.yaml`. We can override it when calling `mlflow run`.
 
-Finally, the folder `test_inference`...
+Note that there are some other folder/steps that come before or after the inference pipeline; each of them has an explanatory file that extends the current `README.md`:
+
+- `data_analysis/`: simple Exploratory Data Analysis (EDA) and Feature Engineering (FE) are performed, as well as data modeling with cross validation to find the optimum hyperparameters. In this folder, the step from a research environment (Jupyter Notebook) to a development environment is shown. The focus doesn't lie on the EDA / FE / Modeling parts, but rather on the transformation of the code for production.
+- `test_inference/`: the exported inference pipeline artifact is deployed to production using different approaches.
 
 ### Dependencies
 
@@ -127,6 +130,8 @@ wandb login
 Note that [hydra](https://hydra.cc/docs/intro/) is also employed in the project; the dependency is resolved with the `conda.yaml` environment configuration files.
 
 ### How to Run: Pipeline Creation and Deployment
+
+This section deals with the creation and deployment of the inference pipeline; if you are interested in the data analysis that precedes it, please check the dedicated folder [data_analisis](data_analisis/README.md).
 
 First, we need to run the entire pipeline (all steps) at least once (locally or remotely) to generate all the artifacts. For that, we need to be logged with our WandB account. After that, we can perform online/offline predictions with MLflow. The correct model version & co. needs to be checked on the WandB web interface.
 
