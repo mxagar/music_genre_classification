@@ -156,3 +156,4 @@ docker run --rm -p 5000:8080 -v ./model:/opt/ml/model "music_genre_classificatio
 
 Unfortunately, I had issues with the Java certifications suing my Apple M1.
 
+One helpful link to write the Dockerfile manually could be this one (not tried): [Using MLFlow and Docker to Deploy Machine Learning Models](https://medium.com/@paul.bendevis/using-mlflow-and-docker-to-deploy-machine-learning-models-4f7888005e24).
