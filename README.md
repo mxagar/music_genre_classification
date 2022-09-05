@@ -49,10 +49,13 @@ The file structure of the folder is the following:
 │   ├── MLproject
 │   ├── conda.yml
 │   └── run.py
-└── segregate
-    ├── MLproject
-    ├── conda.yml
-    └── run.py
+├── segregate
+│   ├── MLproject
+│   ├── conda.yml
+│   └── run.py
+└── test_inference
+    ├── README.md
+    └── test_inference.py
 ```
 
 The ML problem consists in classifying music song genres depending on 
@@ -83,6 +86,8 @@ Pipeline steps or components:
     - The artifacts related to the test split and the inference pipeline are downloaded and used to compute the metrics with the test dataset.
 
 Obviously, not all steps need to be carried out every time; to that end, with have the parameter `main.execute_steps` in the `config.yaml`. We can override it when calling `mlflow run`.
+
+Finally, the folder `test_inference`...
 
 ### Dependencies
 
