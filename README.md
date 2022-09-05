@@ -30,6 +30,9 @@ The file structure of the folder is the following:
 │   └── test_data.py
 ├── conda.yml
 ├── config.yaml
+├── data_analysis
+│   ├── README.md
+│   └── ...
 ├── dataset
 │   └── genres_mod.parquet
 ├── download
@@ -55,7 +58,8 @@ The file structure of the folder is the following:
 │   └── run.py
 └── test_inference
     ├── README.md
-    └── test_inference.py
+    ├── test_inference.py
+    └── ...
 ```
 
 The ML problem consists in classifying music song genres depending on 
