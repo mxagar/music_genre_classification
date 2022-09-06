@@ -109,9 +109,9 @@ The folders `data_analysis` and `simple_pipeline` are stand-alone or independent
 
 ## How to Use this Guide
 
-1. Have a look at [`data_analysis`](data_analysis/README.md): a simple data preprocessing (and EDA) is performed to understand the dataset.
-2. Have a look at [`simple_pipeline`](simple_pipeline/README.md): a simple non-tracked inference pipeline is defined using [Scikit-Learn](https://scikit-learn.org/stable/).
-3. Now, you can check the pipeline managed with [MLflow](https://www.mlflow.org) and [Weights and Biases](https://wandb.ai/site): Follow the notes on the [Overview](#overview-of-boilerplate-project-structure) and run the tracked pipeline as explained in [How to Run: Pipeline Creation and Deployment](#how-to-run-pipeline-creation-and-deployment).
+1. Have a look at [`data_analysis`](data_analysis/README.md): a simple data preprocessing (+ EDA) is performed to understand the dataset.
+2. Have a look at [`simple_pipeline`](simple_pipeline/README.md): a simple non-tracked inference pipeline is defined using [Scikit-Learn](https://scikit-learn.org/stable/) pipelines.
+3. Then, you can check the pipeline managed with [MLflow](https://www.mlflow.org) and [Weights and Biases](https://wandb.ai/site): Follow the notes on the [Overview](#overview-of-boilerplate-project-structure) and run the tracked pipeline as explained in [How to Run: Pipeline Creation and Deployment](#how-to-run-pipeline-creation-and-deployment); make sure you have installed the [dependencies](#dependencies).
 
 ## Dependencies
 
