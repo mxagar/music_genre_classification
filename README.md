@@ -1,21 +1,24 @@
 # Music Genre Classification: A Boilerplate ML Pipeline with MLflow and Weights & Biases
 
-This example is a boilerplate for generating non-complex and reproducible ML pipelines with [MLflow](https://www.mlflow.org) and [Weights and Biases](https://wandb.ai/site). [Scikit-Learn](https://scikit-learn.org/stable/) is used as engine for the data preprocessing and modeling (concretely, a random forests model is trained). The pipeline is divided into the typical steps or components in a pipeline, carried out in order. 
+This project is a boilerplate for generating non-complex and reproducible ML pipelines with [MLflow](https://www.mlflow.org) and [Weights and Biases](https://wandb.ai/site). [Scikit-Learn](https://scikit-learn.org/stable/) is used as engine for the data preprocessing and modeling (concretely, a random forests model is trained). The pipeline is divided into the typical steps or components in a pipeline, carried out in order. 
 
 The example comes originally from an exercise in [udacity-cd0581-building-a-reproducible-model-workflow-exercises](https://github.com/mxagar/udacity-cd0581-building-a-reproducible-model-workflow-exercises), which I completed and extended with comments and some other minor features.
+
+The used dataset is a modified version of the [dataset of songs in Spotify](https://www.kaggle.com/datasets/mrmorj/dataset-of-songs-in-spotify): we have 40k+ songs each with 12 features and the target variable is the genre they belong to. More information on the dataset can be found in the folder `data_analysis`, which is not part of the inference pipeline.
 
 Table of contents:
 
 - [Music Genre Classification: A Boilerplate ML Pipeline with MLflow and Weights & Biases](#music-genre-classification-a-boilerplate-ml-pipeline-with-mlflow-and-weights--biases)
-    - [Overview of Boilerplate Project Structure](#overview-of-boilerplate-project-structure)
-    - [Dependencies](#dependencies)
-    - [How to Run: Pipeline Creation and Deployment](#how-to-run-pipeline-creation-and-deployment)
-      - [Run the Pipeline to Generate the Inference Artifacts](#run-the-pipeline-to-generate-the-inference-artifacts)
-      - [Deployment: Use the Inference Artifacts for Performing Predictions](#deployment-use-the-inference-artifacts-for-performing-predictions)
-    - [Interesting Links](#interesting-links)
-    - [Authorship](#authorship)
+  - [Overview of Boilerplate Project Structure](#overview-of-boilerplate-project-structure)
+    - [Data Analysis and Simple Pipeline](#data-analysis-and-simple-pipeline)
+  - [Dependencies](#dependencies)
+  - [How to Run: Pipeline Creation and Deployment](#how-to-run-pipeline-creation-and-deployment)
+    - [Run the Pipeline to Generate the Inference Artifacts](#run-the-pipeline-to-generate-the-inference-artifacts)
+    - [Deployment: Use the Inference Artifacts for Performing Predictions](#deployment-use-the-inference-artifacts-for-performing-predictions)
+  - [Interesting Links](#interesting-links)
+  - [Authorship](#authorship)
 
-### Overview of Boilerplate Project Structure
+## Overview of Boilerplate Project Structure
 
 The file structure of the folder is the following:
 
@@ -91,12 +94,16 @@ Pipeline steps or components:
 
 Obviously, not all steps need to be carried out every time; to that end, with have the parameter `main.execute_steps` in the `config.yaml`. We can override it when calling `mlflow run`.
 
-Note that there are some other folder/steps that come before or after the inference pipeline; each of them has an explanatory file that extends the current `README.md`:
+There are some additional folders/steps that are not part of the inference pipeline; each of them has an explanatory file that extends the current `README.md`. An important final step is contained in [`test_inference/`](test_inference/README.md), in which the exported inference pipeline artifact is deployed to production using different approaches.
 
-- `data_analysis/`: simple Exploratory Data Analysis (EDA) and Feature Engineering (FE) are performed, as well as data modeling with cross validation to find the optimum hyperparameters. In this folder, the step from a research environment (Jupyter Notebook) to a development environment is shown. The focus doesn't lie on the EDA / FE / Modeling parts, but rather on the transformation of the code for production.
-- `test_inference/`: the exported inference pipeline artifact is deployed to production using different approaches.
+### Data Analysis and Simple Pipeline
 
-### Dependencies
+The folders `data_analysis/` and `simple_pipeline` are stand-alone or independent folders in which related but supplementary tasks are carried out:
+
+- [`data_analysis/`](data_analysis/README.md): simple Exploratory Data Analysis (EDA), data cleaning and Feature Engineering (FE) are performed, as well as data modeling with cross validation to find the optimum hyperparameters. In this folder, the step from a research environment (Jupyter Notebook) to a development environment is shown. The focus doesn't lie on the EDA / FE / Modeling parts, but rather on the transformation of the code for production.
+- [`simple_pipeline`](simple_pipeline/README.md): it contains a version of the pipeline which *does not use* MLflow or Weights and Biases: a Scikit-Learn pipeline is built after embedding the code in classes.
+
+## Dependencies
 
 All project and component dependencies are specified in the `conda.yaml` files.
 
@@ -133,15 +140,15 @@ wandb login
 
 Note that [hydra](https://hydra.cc/docs/intro/) is also employed in the project; the dependency is resolved with the `conda.yaml` environment configuration files.
 
-### How to Run: Pipeline Creation and Deployment
+## How to Run: Pipeline Creation and Deployment
 
 This section deals with the creation and deployment of the inference pipeline; if you are interested in the data analysis that precedes it, please check the dedicated folder [data_analisis](data_analisis/README.md).
 
 First, we need to run the entire pipeline (all steps) at least once (locally or remotely) to generate all the artifacts. For that, we need to be logged with our WandB account. After that, we can perform online/offline predictions with MLflow. The correct model version & co. needs to be checked on the WandB web interface.
 
-#### Run the Pipeline to Generate the Inference Artifacts
+### Run the Pipeline to Generate the Inference Artifacts
 
-**To run the code locally**:
+In order to **run the code locally**:
 
 ```bash
 cd path-to-main-mlflow-file
@@ -181,9 +188,9 @@ mlflow run -v 82f17d94e0800811e81f4d55c0442d3189ed0a63 git@github.com:mxagar/mus
 mlflow run git@github.com:mxagar/music_genre_classification.git -v main -P hydra_options="main.project_name=remote_execution"
 ```
 
-#### Deployment: Use the Inference Artifacts for Performing Predictions
+### Deployment: Use the Inference Artifacts for Performing Predictions
 
-See [test_inference/README.md](test_inference/README.md) for more information on:
+See [`test_inference/README.md`](test_inference/README.md) for more information on:
 
 - How to download and use the inference pipeline to perform batch predictions via CLI.
 - How to serve the inference pipeline as a REST API.
@@ -195,13 +202,13 @@ Before serving or deploying anything, we need to have run the entire pipeline at
 mlflow run .
 ```
 
-### Interesting Links
+## Interesting Links
 
 - This repository doesn't focus on the techniques for data processing and modeling; if you are interested in those topics, you can visit my  [Guide on EDA, Data Cleaning and Feature Engineering](https://github.com/mxagar/eda_fe_summary).
 - If you are interested in more MLOps-related content, you can visit my notes on the [Udacity Machine Learning DevOps Engineering Nanodegree](https://www.udacity.com/course/machine-learning-dev-ops-engineer-nanodegree--nd0821): [mlops_udacity](https://github.com/mxagar/mlops_udacity).
 
 
-### Authorship
+## Authorship
 
 Mikel Sagardia, 2022.  
 No guarantees.
