@@ -1,16 +1,19 @@
-# Music Genre Classification: A Boilerplate ML Pipeline with MLflow and Weights & Biases
+# Music Genre Classification: A Boilerplate Reproducible ML Pipeline with MLflow and Weights & Biases
 
-This project is a boilerplate for generating non-complex and reproducible ML pipelines with [MLflow](https://www.mlflow.org) and [Weights and Biases](https://wandb.ai/site). [Scikit-Learn](https://scikit-learn.org/stable/) is used as engine for the data preprocessing and modeling (concretely, a random forests model is trained). The pipeline is divided into the typical steps or components in a pipeline, carried out in order. 
+This project is a boilerplate for generating non-complex and reproducible ML pipelines with [MLflow](https://www.mlflow.org) and [Weights and Biases](https://wandb.ai/site). [Scikit-Learn](https://scikit-learn.org/stable/) is used as engine for the data preprocessing and modeling (concretely, a random forests model is trained), and [conda](https://docs.conda.io/en/latest/) as environment management system. The pipeline is divided into the typical steps or components in a pipeline, carried out in order. 
 
-The example comes originally from an exercise in [udacity-cd0581-building-a-reproducible-model-workflow-exercises](https://github.com/mxagar/udacity-cd0581-building-a-reproducible-model-workflow-exercises), which I completed and extended with comments and some other minor features.
+The example comes originally from an exercise in the repository [udacity-cd0581-building-a-reproducible-model-workflow-exercises](https://github.com/mxagar/udacity-cd0581-building-a-reproducible-model-workflow-exercises), which I completed and extended with comments and some other minor features.
 
-The used dataset is a modified version of the [dataset of songs in Spotify](https://www.kaggle.com/datasets/mrmorj/dataset-of-songs-in-spotify): we have 40k+ songs each with 12 features and the target variable is the genre they belong to. More information on the dataset can be found in the folder `data_analysis`, which is not part of the inference pipeline.
+The used dataset is a modified version of the [songs in Spotify @ Kaggle](https://www.kaggle.com/datasets/mrmorj/dataset-of-songs-in-spotify): in contains 40k+ song entries, each with 12 features, and the target variable is the genre they belong to. More information on the dataset can be found in the folder `data_analysis`, which is not part of the inference pipeline.
+
+Note that apart from the inference pipeline managed with [MLflow](https://www.mlflow.org) and tracked with [Weights and Biases](https://wandb.ai/site), there is a simpler version in `simple_pipeline`. That folder explains how to transform research code to a production environment using classes and Scikit-Learn Pipelines, without [MLflow](https://www.mlflow.org) or [Weights and Biases](https://wandb.ai/site).
 
 Table of contents:
 
-- [Music Genre Classification: A Boilerplate ML Pipeline with MLflow and Weights & Biases](#music-genre-classification-a-boilerplate-ml-pipeline-with-mlflow-and-weights--biases)
+- [Music Genre Classification: A Boilerplate Reproducible ML Pipeline with MLflow and Weights & Biases](#music-genre-classification-a-boilerplate-reproducible-ml-pipeline-with-mlflow-and-weights--biases)
   - [Overview of Boilerplate Project Structure](#overview-of-boilerplate-project-structure)
     - [Data Analysis and Simple Pipeline](#data-analysis-and-simple-pipeline)
+  - [How to Use this Guide](#how-to-use-this-guide)
   - [Dependencies](#dependencies)
   - [How to Run: Pipeline Creation and Deployment](#how-to-run-pipeline-creation-and-deployment)
     - [Run the Pipeline to Generate the Inference Artifacts](#run-the-pipeline-to-generate-the-inference-artifacts)
@@ -20,52 +23,53 @@ Table of contents:
 
 ## Overview of Boilerplate Project Structure
 
-The file structure of the folder is the following:
+The file structure of the uppest folder is the following:
 
 ```
 .
 ├── MLproject
 ├── README.md
-├── check_data
+├── check_data/
 │   ├── MLproject
 │   ├── conda.yml
 │   ├── conftest.py
 │   └── test_data.py
 ├── conda.yml
 ├── config.yaml
-├── data_analysis
+├── data_analysis/
 │   ├── README.md
 │   └── ...
-├── dataset
+├── dataset/
 │   └── genres_mod.parquet
-├── download
+├── download/
 │   ├── MLproject
 │   ├── conda.yml
 │   └── download_data.py
-├── evaluate
+├── evaluate/
 │   ├── MLproject
 │   ├── conda.yml
 │   └── run.py
 ├── main.py
-├── preprocess
+├── preprocess/
 │   ├── MLproject
 │   ├── conda.yml
 │   └── run.py
-├── random_forest
+├── random_forest/
 │   ├── MLproject
 │   ├── conda.yml
 │   └── run.py
-├── segregate
+├── segregate/
 │   ├── MLproject
 │   ├── conda.yml
 │   └── run.py
-└── test_inference
+├── simple_pipeline/
+│   ├── README.md
+│   └── ...
+└── test_inference/
     ├── README.md
     ├── test_inference.py
     └── ...
 ```
-
-The ML problem consists in classifying music song genres depending on 
 
 The most important high-level files are `config.yaml` and `main.py`; they contain the parameters and the main pipeline execution order, respectively. Each component or pipeline step has its own project sub-folder, with their `MLproject` and `conda.yaml` files, for `mlflow` and conda environment configuration, respectively.
 
@@ -85,8 +89,8 @@ Pipeline steps or components:
     - Component/step with which a random forest model is defined and trained.
     - The training split is subdivided to train/validation.
     - The model is packed in a pipeline which contains data preprocessing and the model itself
-        - The data preprocessing differentiates between numerical/categorical/NLP columns with `ColumnTransformer` and performs imputations, reshapings, feature extraction (TDIDF) and scaling.
-        - The model configuration is achieved via a temporary yaml file created in the `main.py` using the parameters from `config.yaml`.
+        - The data preprocessing differentiates between numerical/categorical/NLP columns with `ColumnTransformer` and performs imputations, re-shapings, text feature extraction (TDIDF) and scaling.
+        - The model configuration is achieved via a temporary YAML file created in the `main.py` using the parameters from `config.yaml`.
     - That inference pipeline is exported and uploaded as an artifact.
     - Performance metrics (AUC) and images (confusion matrix, feature importances) are generated and uploaded as artifacts.
 6. `evaluate/`
@@ -94,18 +98,24 @@ Pipeline steps or components:
 
 Obviously, not all steps need to be carried out every time; to that end, with have the parameter `main.execute_steps` in the `config.yaml`. We can override it when calling `mlflow run`.
 
-There are some additional folders/steps that are not part of the inference pipeline; each of them has an explanatory file that extends the current `README.md`. An important final step is contained in [`test_inference/`](test_inference/README.md), in which the exported inference pipeline artifact is deployed to production using different approaches.
+There are some additional folders/steps that are not part of the inference pipeline; each of them has an explanatory file that extends the current `README.md`. An important final step is contained in the folder [`test_inference`](test_inference/README.md), in which the exported inference pipeline artifact is deployed to production using different approaches.
 
 ### Data Analysis and Simple Pipeline
 
-The folders `data_analysis/` and `simple_pipeline` are stand-alone or independent folders in which related but supplementary tasks are carried out:
+The folders `data_analysis` and `simple_pipeline` are stand-alone or independent folders in which related but supplementary tasks are carried out:
 
-- [`data_analysis/`](data_analysis/README.md): simple Exploratory Data Analysis (EDA), data cleaning and Feature Engineering (FE) are performed, as well as data modeling with cross validation to find the optimum hyperparameters. In this folder, the step from a research environment (Jupyter Notebook) to a development environment is shown. The focus doesn't lie on the EDA / FE / Modeling parts, but rather on the transformation of the code for production.
+- [`data_analysis`](data_analysis/README.md): simple Exploratory Data Analysis (EDA), Data Cleaning and Feature Engineering (FE) are performed, as well as data modeling with cross validation to find the optimum hyperparameters. In this folder, the step from a research environment (Jupyter Notebook) to a development environment is shown. The focus doesn't lie on the EDA / FE / Modeling parts, but rather on the transformation of the code for production; if you are interested in the former, you can visit my [Guide on EDA, Data Cleaning and Feature Engineering](https://github.com/mxagar/eda_fe_summary).
 - [`simple_pipeline`](simple_pipeline/README.md): it contains a version of the pipeline which *does not use* MLflow or Weights and Biases: a Scikit-Learn pipeline is built after embedding the code in classes.
+
+## How to Use this Guide
+
+1. Have a look at [`data_analysis`](data_analysis/README.md): a simple data preprocessing (and EDA) is performed to understand the dataset.
+2. Have a look at [`simple_pipeline`](simple_pipeline/README.md): a simple non-tracked inference pipeline is defined using [Scikit-Learn](https://scikit-learn.org/stable/).
+3. Now, you can check the pipeline managed with [MLflow](https://www.mlflow.org) and [Weights and Biases](https://wandb.ai/site): Follow the notes on the [Overview](#overview-of-boilerplate-project-structure) and run the tracked pipeline as explained in [How to Run: Pipeline Creation and Deployment](#how-to-run-pipeline-creation-and-deployment).
 
 ## Dependencies
 
-All project and component dependencies are specified in the `conda.yaml` files.
+All project and component dependencies are specified in the `conda.yaml` files; that means you'll need to have installed [conda](https://docs.conda.io/en/latest/).
 
 For the ML operations, you require the following tools:
 
@@ -142,7 +152,7 @@ Note that [hydra](https://hydra.cc/docs/intro/) is also employed in the project;
 
 ## How to Run: Pipeline Creation and Deployment
 
-This section deals with the creation and deployment of the inference pipeline; if you are interested in the data analysis that precedes it, please check the dedicated folder [data_analisis](data_analisis/README.md).
+This section deals with the creation and deployment of the inference pipeline; if you are interested in the data analysis that precedes it, please check the dedicated folder [`data_analisis`](data_analisis/README.md).
 
 First, we need to run the entire pipeline (all steps) at least once (locally or remotely) to generate all the artifacts. For that, we need to be logged with our WandB account. After that, we can perform online/offline predictions with MLflow. The correct model version & co. needs to be checked on the WandB web interface.
 
