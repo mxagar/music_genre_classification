@@ -223,4 +223,4 @@ mlflow run .
 Mikel Sagardia, 2022.  
 No guarantees.
 
-I you find this repository useful and use it, please link to the original source.
+If you find this repository helpful and use it, please link to the original source: [https://github.com/mxagar/music_genre_classification](https://github.com/mxagar/music_genre_classification).
