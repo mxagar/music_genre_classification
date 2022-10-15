@@ -65,9 +65,9 @@ The file structure of the uppest folder is the following:
 ├── simple_pipeline/
 │   ├── README.md
 │   └── ...
-└── test_inference/
+└── serving/
     ├── README.md
-    ├── test_inference.py
+    ├── test_serving.py
     └── ...
 ```
 
@@ -98,7 +98,7 @@ Pipeline steps or components:
 
 Obviously, not all steps need to be carried out every time; to that end, with have the parameter `main.execute_steps` in the `config.yaml`. We can override it when calling `mlflow run`.
 
-There are some additional folders/steps that are not part of the inference pipeline; each of them has an explanatory file that extends the current `README.md`. An important final step is contained in the folder [`test_inference`](test_inference/README.md), in which the exported inference pipeline artifact is deployed to production using different approaches.
+There are some additional folders/steps that are not part of the inference pipeline; each of them has an explanatory file that extends the current `README.md`. An important final step is contained in the folder [`serving`](serving/README.md), in which the exported inference pipeline artifact is deployed to production using different approaches.
 
 ### Data Analysis and Simple Pipeline
 
@@ -200,7 +200,7 @@ mlflow run git@github.com:mxagar/music_genre_classification.git -v main -P hydra
 
 ### Deployment: Use the Inference Artifacts for Performing Predictions
 
-See [`test_inference/README.md`](test_inference/README.md) for more information on:
+See [`serving/README.md`](serving/README.md) for more information on:
 
 - How to download and use the inference pipeline to perform batch predictions via CLI.
 - How to serve the inference pipeline as a REST API.

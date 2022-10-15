@@ -20,7 +20,7 @@ Example workflow of how to carry it out:
 
 ```bash
 cd .../new_empty_folder
-# In our case: cd test_inference
+# In our case: cd serving
 
 # Get the artifact
 # We can check in the web interface the address of the desired artifact:
@@ -70,7 +70,7 @@ The service creation with the REST API:
 
 ```bash
 # Get the inference/model artifact
-cd .../new_empty_folder # test_inference
+cd .../new_empty_folder # serving
 # wandb artifact get [<user>/]<project_name>/<inference_artifact>:<tag> --root model
 wandb artifact get music_genre_classification_prod/model_export:prod --root model
 
@@ -86,7 +86,7 @@ mlflow models serve -m model &
 # because sometimes it is not converted correctly by the requests package
 ```
 
-Accessing the REST API with python: We create a script `test_inference.py` and execute it as `python test_inference.py`; the content of `test_inference.py`:
+Accessing the REST API with python: We create a script `test_serving.py` and execute it as `python test_serving.py`; the content of `test_serving.py`:
 
 ```python
 import requests
