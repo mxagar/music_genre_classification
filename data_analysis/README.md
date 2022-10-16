@@ -33,7 +33,15 @@ wandb artifact get music_genre_classification/genres_mod.parquet:latest
 
 Note that in the production components the dataset is downloaded from an URL and added as an artifact, so we skip this CLI steps.
 
-**Second**, we run `mlflow`, which launches the project defined in `MLproject`; this project basically installs a conda environment defined in `conda.yaml` and starts the jupyter notebook IDE. Within that jupyter server instance, we can create all the notebooks we want.
+**Second**, we run `mlflow`, which launches the project defined in `MLproject`; this project basically installs a conda environment defined in `conda.yaml` and starts the Jupyter Notebook IDE. Within that Jupyter server instance, we can create all the notebooks we want.
+
+```bash
+mlflow run .
+
+# The first time the environment is installed and it takes time.
+# A Jupyter Notebook server should be opened in our default browser.
+# The next times, it's much faster.
+```
 
 The most interesting notebook in terms of how to track notebooks and artifacts using W&B is [`EDA_Tracking.ipynb`](EDA_Tracking.ipynb); the steps carried out in that notebook are:
 
@@ -46,9 +54,12 @@ The most interesting notebook in terms of how to track notebooks and artifacts u
   - Create new text field which is the concatenation of the title and the song name.
 - Finish the run: `run.finish()`.
 
+We can check in out W&B account that the artifact and the run(s) are registered and tracked.
+
 The other two the notebooks perform operations that are in part transferred to the production components, but they are not tracked; the tracking is shown only in the notebook [`EDA_Tracking.ipynb`](EDA_Tracking.ipynb).
 
 ### Links
 
 - Original dataset: [Dataset of songs in Spotify](https://www.kaggle.com/datasets/mrmorj/dataset-of-songs-in-spotify).
 - Example EDA and data modeling with the dataset [Understanding + classifying genres using Spotify audio features](https://www.kaylinpavlik.com/classifying-songs-genres/).
+
