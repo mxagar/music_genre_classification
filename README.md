@@ -6,16 +6,14 @@ The example comes originally from an exercise in the repository [udacity-cd0581-
 
 The used dataset is a modified version of the [songs in Spotify @ Kaggle](https://www.kaggle.com/datasets/mrmorj/dataset-of-songs-in-spotify): in contains 40k+ song entries, each with 12 features, and the target variable is the genre they belong to. More information on the dataset can be found in the folder `data_analysis`, which is not part of the inference pipeline.
 
-Note that apart from the inference pipeline managed with [MLflow](https://www.mlflow.org) and tracked with [Weights and Biases](https://wandb.ai/site), there is a simpler version in `simple_pipeline`. That folder explains how to transform research code to a production environment using classes and Scikit-Learn Pipelines, without [MLflow](https://www.mlflow.org) or [Weights and Biases](https://wandb.ai/site).
-
 Table of contents:
 
 - [Music Genre Classification: A Boilerplate Reproducible ML Pipeline with MLflow and Weights & Biases](#music-genre-classification-a-boilerplate-reproducible-ml-pipeline-with-mlflow-and-weights--biases)
   - [Overview of Boilerplate Project Structure](#overview-of-boilerplate-project-structure)
-    - [Data Analysis and Simple Pipeline](#data-analysis-and-simple-pipeline)
+    - [Data Analysis and Serving](#data-analysis-and-serving)
   - [How to Use this Guide](#how-to-use-this-guide)
   - [Dependencies](#dependencies)
-  - [How to Run: Pipeline Creation and Deployment](#how-to-run-pipeline-creation-and-deployment)
+  - [How to Run This: Pipeline Creation and Deployment](#how-to-run-this-pipeline-creation-and-deployment)
     - [Run the Pipeline to Generate the Inference Artifacts](#run-the-pipeline-to-generate-the-inference-artifacts)
     - [Deployment: Use the Inference Artifacts for Performing Predictions](#deployment-use-the-inference-artifacts-for-performing-predictions)
   - [Interesting Links](#interesting-links)
@@ -23,7 +21,7 @@ Table of contents:
 
 ## Overview of Boilerplate Project Structure
 
-The file structure of the uppest folder is the following:
+The file structure of the root folder is the following:
 
 ```
 .
@@ -37,8 +35,10 @@ The file structure of the uppest folder is the following:
 ├── conda.yml
 ├── config.yaml
 ├── data_analysis/
-│   ├── README.md
-│   └── ...
+│   ├── MLproject
+│   ├── conda.yml
+│   ├── EDA.ipynb
+│   └── README.md
 ├── dataset/
 │   └── genres_mod.parquet
 ├── download/
@@ -62,9 +62,6 @@ The file structure of the uppest folder is the following:
 │   ├── MLproject
 │   ├── conda.yml
 │   └── run.py
-├── simple_pipeline/
-│   ├── README.md
-│   └── ...
 └── serving/
     ├── README.md
     ├── test_serving.py
@@ -75,17 +72,17 @@ The most important high-level files are `config.yaml` and `main.py`; they contai
 
 Pipeline steps or components:
 
-1. `download/`
+1. [`download/`](download)
     - A parquet file of songs and their attributes is downloaded from a URL; the songs need to be classified according to their genre.
     - The dataset it uploaded to Weights and Biases as an artifact.
-2. `preprocess/`
+2. [`preprocess/`](preprocess)
     - Raw dataset artifact is downloaded and preprocessed: missing values imputed and duplicates removed; additionally, a new feature `text_feature` is created.
-3. `check_data/`
+3. [`check_data/`](check_data)
     - Data validation: pre-processed dataset is checked using `pytest`.
     - In the dummy example, the reference and sample datasets are the same, and only deterministic tests are carried out, but we could have used a reference dataset for non-deterministic tests.
-4. `segregate/`
+4. [`segregate/`](segregate)
     - Train/test split is done and the two splits are uploaded as artifacts.
-5. `random_forest/`
+5. [`random_forest/`](random_forest)
     - Component/step with which a random forest model is defined and trained.
     - The training split is subdivided to train/validation.
     - The model is packed in a pipeline which contains data preprocessing and the model itself
@@ -93,41 +90,38 @@ Pipeline steps or components:
         - The model configuration is achieved via a temporary YAML file created in the `main.py` using the parameters from `config.yaml`.
     - That inference pipeline is exported and uploaded as an artifact.
     - Performance metrics (AUC) and images (confusion matrix, feature importances) are generated and uploaded as artifacts.
-6. `evaluate/`
+6. [`evaluate/`](evaluate)
     - The artifacts related to the test split and the inference pipeline are downloaded and used to compute the metrics with the test dataset.
 
-Obviously, not all steps need to be carried out every time; to that end, with have the parameter `main.execute_steps` in the `config.yaml`. We can override it when calling `mlflow run`.
+Obviously, not all steps need to be carried out every time; to that end, with have the parameter `main.execute_steps` in the `config.yaml`. We can override it when calling `mlflow run`, as shown in the section [How to Run This](#how-to-run-pipeline-creation-and-deployment).
 
-There are some additional folders/steps that are not part of the inference pipeline; each of them has an explanatory file that extends the current `README.md`. An important final step is contained in the folder [`serving`](serving/README.md), in which the exported inference pipeline artifact is deployed to production using different approaches.
+### Data Analysis and Serving
 
-### Data Analysis and Simple Pipeline
-
-The folders `data_analysis` and `simple_pipeline` are stand-alone or independent folders in which related but supplementary tasks are carried out:
+There are two stand-alone folders/steps that are not part of the inference pipeline; each of them has an explanatory file that extends the current `README.md`:
 
 - [`data_analysis`](data_analysis/README.md): simple Exploratory Data Analysis (EDA), Data Cleaning and Feature Engineering (FE) are performed, as well as data modeling with cross validation to find the optimum hyperparameters. In this folder, the step from a research environment (Jupyter Notebook) to a development environment is shown. The focus doesn't lie on the EDA / FE / Modeling parts, but rather on the transformation of the code for production; if you are interested in the former, you can visit my [Guide on EDA, Data Cleaning and Feature Engineering](https://github.com/mxagar/eda_fe_summary).
-- [`simple_pipeline`](simple_pipeline/README.md): it contains a version of the pipeline which *does not use* MLflow or Weights and Biases: a Scikit-Learn pipeline is built after embedding the code in classes.
+- [`serving`](serving/README.md): the exported inference pipeline artifact is deployed to production using different approaches.
 
 ## How to Use this Guide
 
 1. Have a look at [`data_analysis`](data_analysis/README.md): a simple data preprocessing (+ EDA) is performed to understand the dataset.
-2. Have a look at [`simple_pipeline`](simple_pipeline/README.md): a simple non-tracked inference pipeline is defined using [Scikit-Learn](https://scikit-learn.org/stable/) pipelines.
-3. Then, you can check the pipeline managed with [MLflow](https://www.mlflow.org) and [Weights and Biases](https://wandb.ai/site): Follow the notes on the [Overview](#overview-of-boilerplate-project-structure) and run the tracked pipeline as explained in [How to Run: Pipeline Creation and Deployment](#how-to-run-pipeline-creation-and-deployment); make sure you have installed the [dependencies](#dependencies).
+2. Then, you can check the pipeline managed with [MLflow](https://www.mlflow.org) and [Weights and Biases](https://wandb.ai/site): Follow the notes on the [Overview](#overview-of-boilerplate-project-structure) and run the tracked pipeline as explained in [How to Run: Pipeline Creation and Deployment](#how-to-run-pipeline-creation-and-deployment); make sure you have installed the [dependencies](#dependencies).
 
 ## Dependencies
 
-All project and component dependencies are specified in the `conda.yaml` files; that means you'll need to have installed [conda](https://docs.conda.io/en/latest/).
+You need to have:
 
-For the ML operations, you require the following tools:
-
+- [Conda](https://docs.conda.io/en/latest/): environment management.
 - [MLflow](https://www.mlflow.org): management of step parametrized step executions.
 - [Weights and Biases](https://wandb.ai/site): tracking of experiments, artifacts, metrics, etc.
 
-In order to install those tools:
+Note that each ML component has its specific `conda` environment, each one specified in their respective `conda.yaml` files. On th eother hand, you can follow this shirt recipe to set up the main environment from which everything is launched:
 
 ```bash
-# Create an environment
-# conda create --name ds-env python=3.8 mlflow jupyter pandas matplotlib requests -c conda-forge
-# ... or activate an existing one:
+# Create a basic environment: we use this environment to launch everything
+conda create --name ds-env python=3.8 numpy pandas matplotlib scikit-learn requests jupyter -c conda-forge
+
+# Activate environment
 conda activate ds-env
 
 # Install MLflow packages
@@ -148,9 +142,11 @@ wandb login
 # Done!
 ```
 
+It is possible to automate all that with a `conda.yaml`, but I wanted to leave all steps to make clear what's going on, since this is a boilerplate :wink:
+
 Note that [hydra](https://hydra.cc/docs/intro/) is also employed in the project; the dependency is resolved with the `conda.yaml` environment configuration files.
 
-## How to Run: Pipeline Creation and Deployment
+## How to Run This: Pipeline Creation and Deployment
 
 This section deals with the creation and deployment of the inference pipeline; if you are interested in the data analysis that precedes it, please check the dedicated folder [`data_analisis`](data_analisis/README.md).
 
@@ -215,6 +211,7 @@ mlflow run .
 ## Interesting Links
 
 - This repository doesn't focus on the techniques for data processing and modeling; if you are interested in those topics, you can visit my  [Guide on EDA, Data Cleaning and Feature Engineering](https://github.com/mxagar/eda_fe_summary).
+- This project creates an inference pipeline managed with [MLflow](https://www.mlflow.org) and tracked with [Weights and Biases](https://wandb.ai/site); however, it is possible to define a production inference pipeline in a more simple way without the exposure to those 3rd party tools. In [this blog post](https://mikelsagardia.io/blog/machine-learning-production-level.html) I describe how to perform that transformation from research code to production-level code; the associated repository is [customer_churn_production](https://github.com/mxagar/customer_churn_production).
 - If you are interested in more MLOps-related content, you can visit my notes on the [Udacity Machine Learning DevOps Engineering Nanodegree](https://www.udacity.com/course/machine-learning-dev-ops-engineer-nanodegree--nd0821): [mlops_udacity](https://github.com/mxagar/mlops_udacity).
 
 

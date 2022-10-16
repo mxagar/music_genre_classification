@@ -1,5 +1,5 @@
 main:
-  project_name: exercise_14 # production name: music_genre_classification_prod; add tag prod
+  project_name: music_genre_classification # production name: music_genre_classification_prod; add tag prod
   experiment_name: dev
   execute_steps:
     # In production we don't need all steps, so we can override execute_steps, e.g.:
