@@ -2,9 +2,7 @@ import pytest
 import pandas as pd
 import wandb
 
-
-run = wandb.init(job_type="data_tests")
-
+run = wandb.init(project="music_genre_classification", job_type="data_tests")
 
 def pytest_addoption(parser):
     parser.addoption("--reference_artifact", action="store")
