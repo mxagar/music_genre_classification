@@ -35,7 +35,7 @@ python run.py \
 --artifact_description {artifact_description}
 
 # Call with real arguments
-# from config.yaml
+# from ../config.yaml or ../main.py
 # BUT: make sure environment is correct!
 # ... or just use the mlflow call above :)
 python run.py \
@@ -44,6 +44,12 @@ python run.py \
 --artifact_type "raw_data" \
 --artifact_description "Data as downloaded"
 ```
+
+After executing `mlflow` and, through it, the script `run.py`, we generate many outputs:
+
+- The folders `mlruns`, `wandb` and `artifacts` are created or repopulated.
+- The log file `../ml_pipeline.log` is modified.
+- We can see tracking information in the W&B web interface.
 
 The script `run.py`, as in most of the other components or steps, has the following structure:
 
