@@ -6,10 +6,13 @@ import wandb
 import requests
 import tempfile
 
-
-logging.basicConfig(level=logging.INFO, format="%(asctime)-15s %(message)s")
+# Logging configuration
+logging.basicConfig(
+    filename='../results.log', # filename, where it's dumped
+    level=logging.INFO, # minimum level I log
+    filemode='a', # append
+    format='%(name)s - %(asctime)s - %(levelname)s - get_data - %(message)s') # add component name for tracing
 logger = logging.getLogger()
-
 
 def go(args):
 
@@ -20,11 +23,11 @@ def go(args):
     # the available memory. We use a named temporary file that gets
     # destroyed at the end of the context, so we don't leave anything
     # behind and the file gets removed even in case of errors
-    logger.info(f"Downloading {args.file_url} ...")
+    logger.info("Downloading %s ...", args.file_url)
     with tempfile.NamedTemporaryFile(mode='wb+') as fp:
 
         logger.info("Creating run")
-        with wandb.init(job_type="download_data") as run:
+        with wandb.init(project="music_genre_classification", job_type="download_data") as run:
             # Download the file streaming and write to open temp file
             with requests.get(args.file_url, stream=True) as r:
                 for chunk in r.iter_content(chunk_size=8192):
@@ -34,7 +37,7 @@ def go(args):
             # to W&B
             fp.flush()
 
-            logger.info("Creating artifact")
+            logger.info("Creating artifact: %s", args.artifact_name)
             artifact = wandb.Artifact(
                 name=args.artifact_name,
                 type=args.artifact_type,
@@ -43,7 +46,7 @@ def go(args):
             )
             artifact.add_file(fp.name, name=basename)
 
-            logger.info("Logging artifact")
+            logger.info("Logging artifact: %s", basename)
             run.log_artifact(artifact)
 
             artifact.wait()
