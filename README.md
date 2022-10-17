@@ -17,6 +17,7 @@ Table of contents:
     - [Run the Pipeline to Generate the Inference Artifacts](#run-the-pipeline-to-generate-the-inference-artifacts)
     - [Deployment: Use the Inference Artifacts for Performing Predictions](#deployment-use-the-inference-artifacts-for-performing-predictions)
   - [Notes on How MLflow and Weights & Biases Work](#notes-on-how-mlflow-and-weights--biases-work)
+    - [Component Script Structure](#component-script-structure)
     - [Tips and Tricks](#tips-and-tricks)
   - [Interesting Links](#interesting-links)
   - [Authorship](#authorship)
@@ -215,11 +216,65 @@ mlflow run .
 
 ## Notes on How MLflow and Weights & Biases Work
 
+### Component Script Structure
+
+```python
+# Imports
+# ...
+
+# Logger
+logging.basicConfig(...)
+logger = logging.getLogger()
+
+# Component function
+# args contains all necessary variables
+def go(args):
+    # Instantiate W&B run in a context
+    # or, if preferred, without a context
+    # run = wandb.init(...)
+    # IMPORTANT: set project="my_project"
+    # to share artifacts between different components
+    with wandb.init(project="my_project", ...) as run:
+
+        # Download the artifacts needed
+        artifact = run.use_artifact(...)
+        artifact_path = artifact.file()
+        df = pd.read_parquet(artifact_path)
+
+        # Do the WORK and log steps
+        # The real component functionality goes HERE
+        # ...
+        # ...
+        logger.info("Work done")
+
+        # Upload any generated artifact(s)
+        artifact = wandb.Artifact(...)
+        artifact.add_file(...)
+        run.log_artifact(artifact)
+        artifact.wait()
+
+        # Log metrics, images, etc.
+        run.summary['metric_A'] = ...
+        run.log(...)
+
+if __name__ == "__main__":
+    # Define and parse arguments
+    parser = argparse.ArgumentParser(...)
+    parser.add_argument(...)
+    # ...
+    args = parser.parse_args()
+
+    # Execute component function
+    go(args)
+
+```
+
 ### Tips and Tricks
 
-- `with tempfile.TemporaryDirectory()`
-- project_name
+- `tempfile.TemporaryDirectory()`, `tempfile.NamedTemporaryFile()`,  or `os.remove(filename)`
+- `wandb.init(project="my_project", ...)`
 - `ml_pipeline.log`
+- Ignore: `wandb`, `artifacts`, `outputs`, `mlruns`, `ml_pipeline.log`
 
 ## Interesting Links
 
