@@ -27,54 +27,57 @@ The file structure of the root folder is the following:
 
 ```
 .
-├── MLproject
 ├── README.md
+├── MLproject
+├── config.yaml
+├── conda.yml
+├── main.py
+├── dataset/
+│   └── genres_mod.parquet
+├── data_analysis/
+│   ├── MLproject
+│   ├── conda.yml
+│   ├── EDA_Tracking.ipynb
+│   ├── Modeling.ipynb
+│   └── README.md
+├── get_data/
+│   ├── MLproject
+│   ├── conda.yml
+│   └── run.py
+├── preprocess/
+│   ├── MLproject
+│   ├── conda.yml
+│   └── run.py
 ├── check_data/
 │   ├── MLproject
 │   ├── conda.yml
 │   ├── conftest.py
 │   └── test_data.py
-├── conda.yml
-├── config.yaml
-├── data_analysis/
-│   ├── MLproject
-│   ├── conda.yml
-│   ├── EDA.ipynb
-│   └── README.md
-├── dataset/
-│   └── genres_mod.parquet
-├── download/
-│   ├── MLproject
-│   ├── conda.yml
-│   └── download_data.py
-├── evaluate/
-│   ├── MLproject
-│   ├── conda.yml
-│   └── run.py
-├── main.py
-├── preprocess/
-│   ├── MLproject
-│   ├── conda.yml
-│   └── run.py
-├── random_forest/
-│   ├── MLproject
-│   ├── conda.yml
-│   └── run.py
 ├── segregate/
 │   ├── MLproject
 │   ├── conda.yml
 │   └── run.py
+├── train_random_forest/
+│   ├── MLproject
+│   ├── conda.yml
+│   └── run.py
+├── evaluate/
+│   ├── MLproject
+│   ├── conda.yml
+│   └── run.py
 └── serving/
     ├── README.md
-    ├── test_serving.py
+    ├── serving_example.py
     └── ...
 ```
+
+![Reproducible ML Pipeline: Generic Workflow](assets/Reproducible_Pipeline.png)
 
 The most important high-level files are `config.yaml` and `main.py`; they contain the parameters and the main pipeline execution order, respectively. Each component or pipeline step has its own project sub-folder, with their `MLproject` and `conda.yaml` files, for `mlflow` and conda environment configuration, respectively.
 
 Pipeline steps or components:
 
-1. [`download/`](download)
+1. [`get_data/`](get_data)
     - A parquet file of songs and their attributes is downloaded from a URL; the songs need to be classified according to their genre.
     - The dataset it uploaded to Weights and Biases as an artifact.
 2. [`preprocess/`](preprocess)
@@ -84,7 +87,7 @@ Pipeline steps or components:
     - In the dummy example, the reference and sample datasets are the same, and only deterministic tests are carried out, but we could have used a reference dataset for non-deterministic tests.
 4. [`segregate/`](segregate)
     - Train/test split is done and the two splits are uploaded as artifacts.
-5. [`random_forest/`](random_forest)
+5. [`train_random_forest/`](random_forest)
     - Component/step with which a random forest model is defined and trained.
     - The training split is subdivided to train/validation.
     - The model is packed in a pipeline which contains data preprocessing and the model itself
@@ -165,11 +168,11 @@ mlflow run .
 
 # Run selected steps: Download dataset and preprocess it
 # The order is given by main.py
-mlflow run . -P hydra_options="main.execute_steps='download,preprocess,check_data,segregate'"
+mlflow run . -P hydra_options="main.execute_steps='get_data,preprocess,check_data,segregate'"
 
 # Run selected steps: Just re-generate the inference pipeline and evaluate it
 # The order is given by main.py
-mlflow run . -P hydra_options="main.execute_steps='random_forest,evaluate'"
+mlflow run . -P hydra_options="main.execute_steps='train_random_forest,evaluate'"
 
 # For production: 
 # Change the name of the project for production
@@ -215,6 +218,8 @@ mlflow run .
 ### Tips and Tricks
 
 - `with tempfile.TemporaryDirectory()`
+- project_name
+- `ml_pipeline.log`
 
 ## Interesting Links
 
