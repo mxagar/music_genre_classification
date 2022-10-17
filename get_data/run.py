@@ -8,7 +8,7 @@ import tempfile
 
 # Logging configuration
 logging.basicConfig(
-    filename='../results.log', # filename, where it's dumped
+    filename='../ml_pipeline.log', # filename, where it's dumped
     level=logging.INFO, # minimum level I log
     filemode='a', # append
     format='%(name)s - %(asctime)s - %(levelname)s - get_data - %(message)s') # add component name for tracing

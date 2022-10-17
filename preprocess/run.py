@@ -8,7 +8,7 @@ import wandb
 
 # Logging configuration
 logging.basicConfig(
-    filename='../results.log', # filename, where it's dumped
+    filename='../ml_pipeline.log', # filename, where it's dumped
     level=logging.INFO, # minimum level I log
     filemode='a', # append
     format='%(name)s - %(asctime)s - %(levelname)s - preprocess - %(message)s') # add component name for tracing
