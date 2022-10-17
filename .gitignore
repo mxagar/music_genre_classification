@@ -7,3 +7,4 @@ artifacts
 outputs
 .vscode
 multirun
+*.log
