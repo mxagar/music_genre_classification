@@ -3,6 +3,11 @@ import pandas as pd
 
 
 def test_column_presence_and_type(data):
+    """Test columns and types.
+
+    Args:
+        data (tuple of data frames): reference (e.g., EDA) and current dataset to be tested
+    """
 
     # Disregard the reference dataset
     _, data = data
@@ -33,6 +38,11 @@ def test_column_presence_and_type(data):
 
 
 def test_class_names(data):
+    """Test genre class names.
+
+    Args:
+        data (tuple of data frames): reference (e.g., EDA) and current dataset to be tested
+    """
 
     # Disregard the reference dataset
     _, data = data
@@ -60,6 +70,11 @@ def test_class_names(data):
 
 
 def test_column_ranges(data):
+    """Test column value ranges.
+
+    Args:
+        data (tuple of data frames): reference (e.g., EDA) and current dataset to be tested
+    """
 
     # Disregard the reference dataset
     _, data = data
@@ -88,7 +103,13 @@ def test_column_ranges(data):
 
 
 def test_kolmogorov_smirnov(data, ks_alpha):
+    """Kolgomorov-Smirnov test with 2 samples:
+    Analog to the T-Test but non-parametric.
 
+    Args:
+        data (tuple of data frames): reference (e.g., EDA) and current dataset to be tested
+        ks_alpha (float): significance level
+    """
     sample1, sample2 = data
 
     columns = [
@@ -105,8 +126,8 @@ def test_kolmogorov_smirnov(data, ks_alpha):
     ]
 
     # Bonferroni correction for multiple hypothesis testing
-    # (see my blog post on this topic to see where this comes from:
-    # https://towardsdatascience.com/precision-and-recall-trade-off-and-multiple-hypothesis-testing-family-wise-error-rate-vs-false-71a85057ca2b)
+    # See blog post on this topic to understand where this comes from:
+    # https://towardsdatascience.com/precision-and-recall-trade-off-and-multiple-hypothesis-testing-family-wise-error-rate-vs-false-71a85057ca2b
     alpha_prime = 1 - (1 - ks_alpha)**(1 / len(columns))
 
     for col in columns:
