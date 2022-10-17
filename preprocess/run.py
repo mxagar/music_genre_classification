@@ -34,6 +34,8 @@ def go(args):
     df['song_name'].fillna(value='', inplace=True)
     df['text_feature'] = df['title'] + ' ' + df['song_name']
 
+    # Temporary file
+    #filename = args.artifact_name
     filename = "processed_data.csv"
     df.to_csv(filename)
 
@@ -47,6 +49,8 @@ def go(args):
     logger.info("Logging artifact: %s", args.artifact_name)
     run.log_artifact(artifact)
 
+    # Remove created temporary file
+    # we could also use tempfile.NamedTemporaryFile()
     os.remove(filename)
 
 
