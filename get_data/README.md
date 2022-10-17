@@ -13,37 +13,39 @@ As introduced in the root `README.md`, we have the following generic steps in a 
 
 This folder deals with the step or component number X: **X**.
 
-The component is executed by the root level `mlflow` command, which gets the configuration parameters from the root `config.yaml` using `hydra` and sets the required environment defined in the current/local `conda.yaml`. However, we can also run it locally invoking the local `MLproject` file:
+This component is executed by the root level `mlflow` command, which gets the configuration parameters either (1) from the root `config.yaml` using `hydra` (2) or these are hard-coded in the `main.py` script from the root level. MLflow sets the required environment defined in the current/local `conda.yaml` automatically. We can also run this component locally and independently from the general project by invoking the local `MLproject` file as follows:
 
 ```bash
 # The MLproject file in . is used
 mlflow run . \
--P file_url=... \
--P artifact_name=... \
--P artifact_type=... \
--P artifact_description=...
+-P file_url="https://github.com/mxagar/music_genre_classification/blob/main/dataset/genres_mod.parquet?raw=true" \
+-P artifact_name="raw_data.parquet" \
+-P artifact_type="raw_data" \
+-P artifact_description="Data as downloaded"
 ```
 
 MLflow configures the necessary conda environment and executes the following command:
 
 ```bash
 # General call, without argument values
-python get_data.py --file_url {file_url} \
-                    --artifact_name {artifact_name} \
-                    --artifact_type {artifact_type} \
-                    --artifact_description {artifact_description}
+python run.py \
+--file_url {file_url} \
+--artifact_name {artifact_name} \
+--artifact_type {artifact_type} \
+--artifact_description {artifact_description}
 
 # Call with real arguments
 # from config.yaml
 # BUT: make sure environment is correct!
 # ... or just use the mlflow call above :)
-python get_data.py --file_url {file_url} \
-                    --artifact_name {artifact_name} \
-                    --artifact_type {artifact_type} \
-                    --artifact_description {artifact_description}
+python run.py \
+--file_url "https://github.com/mxagar/music_genre_classification/blob/main/dataset/genres_mod.parquet?raw=true" \
+--artifact_name "raw_data.parquet" \
+--artifact_type "raw_data" \
+--artifact_description "Data as downloaded"
 ```
 
-The script `get_data.py`, as most of the other components or step, has the following structure:
+The script `run.py`, as in most of the other components or steps, has the following structure:
 
 ```python
 # Imports
@@ -60,18 +62,20 @@ def go(args):
     # run = wandb.init(...)
     with wandb.init(...) as run:
 
-        # Do the WORK and log steps   
+        # Do the WORK and log steps
+        # The real component functionality goes HERE
+        # ...
         # ...
         logger.info("Work done")
 
-        # Upload any generated artifact
+        # Upload any generated artifact(s)
         artifact = wandb.Artifact(...)
         artifact.add_file(...)
         run.log_artifact(artifact)
         artifact.wait()
 
-        # Log images, etc.
-        run.summary[...] = ...
+        # Log metrics, images, etc.
+        run.summary['metric_A'] = ...
         run.log(...)
 
 if __name__ == "__main__":
@@ -86,4 +90,6 @@ if __name__ == "__main__":
 
 ```
 
-In the concrete case of the step `get_data`, 
+In the concrete case of the step `get_data`, a `parquet` file is downloaded from the given URL and saved as a dataset artifact in W&B. The functionality `tempfile.NamedTemporaryFile()` is used for that.
+
+Note that `data_analysis` shows how to upload manually the dataset via the CLI; thus, the current step is redundant, or it could be change to upload from a local folder.
