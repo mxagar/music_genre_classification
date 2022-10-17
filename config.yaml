@@ -3,13 +3,13 @@ main:
   experiment_name: dev
   execute_steps:
     # In production we don't need all steps, so we can override execute_steps, e.g.:
-    # mlflow run . -P hydra_options="main.execute_steps='random_forest'"
-    # mlflow run . -P hydra_options="main.execute_steps='download,preprocess'"
-    - download
+    # mlflow run . -P hydra_options="main.execute_steps='train_random_forest'"
+    # mlflow run . -P hydra_options="main.execute_steps='get_data,preprocess'"
+    - get_data
     - preprocess
     - check_data
     - segregate
-    - random_forest
+    - train_random_forest
     - evaluate
   # This seed will be used to seed the random number generator
   # to ensure repeatibility of the data splits and other
@@ -21,7 +21,7 @@ data:
   #file_url: "dataset/genres_mod.parquet"
   #file_url: "https://github.com/udacity/nd0821-c2-build-model-workflow-exercises/blob/master/lesson-2-data-exploration-and-preparation/exercises/exercise_4/starter/genres_mod.parquet?raw=true"
   file_url: "https://github.com/mxagar/music_genre_classification/blob/main/dataset/genres_mod.parquet?raw=true"
-  reference_dataset: "exercise_14/preprocessed_data.csv:latest"
+  reference_dataset: "music_genre_classification/preprocessed_data.csv:latest"
   # Threshold for Kolomorov-Smirnov test
   ks_alpha: 0.05
   test_size: 0.3
