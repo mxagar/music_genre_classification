@@ -6,16 +6,19 @@ import os
 import pandas as pd
 import wandb
 
-
-logging.basicConfig(level=logging.INFO, format="%(asctime)-15s %(message)s")
+# Logging configuration
+logging.basicConfig(
+    filename='../results.log', # filename, where it's dumped
+    level=logging.INFO, # minimum level I log
+    filemode='a', # append
+    format='%(name)s - %(asctime)s - %(levelname)s - preprocess - %(message)s') # add component name for tracing
 logger = logging.getLogger()
-
 
 def go(args):
 
-    run = wandb.init(job_type="process_data")
+    run = wandb.init(project="music_genre_classification", job_type="preprocess_data")
 
-    logger.info("Downloading artifact")
+    logger.info("Downloading artifact: %s", args.input_artifact)
     artifact = run.use_artifact(args.input_artifact)
     artifact_path = artifact.file()
 
@@ -26,7 +29,7 @@ def go(args):
     df = df.drop_duplicates().reset_index(drop=True)
 
     # A minimal feature engineering step: a new feature
-    logger.info("Feature engineering")
+    logger.info("Basic feature engineering")
     df['title'].fillna(value='', inplace=True)
     df['song_name'].fillna(value='', inplace=True)
     df['text_feature'] = df['title'] + ' ' + df['song_name']
@@ -41,7 +44,7 @@ def go(args):
     )
     artifact.add_file(filename)
 
-    logger.info("Logging artifact")
+    logger.info("Logging artifact: %s", args.artifact_name)
     run.log_artifact(artifact)
 
     os.remove(filename)
