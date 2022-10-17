@@ -19,6 +19,7 @@ Table of contents:
   - [Notes on How MLflow and Weights & Biases Work](#notes-on-how-mlflow-and-weights--biases-work)
     - [Component Script Structure](#component-script-structure)
     - [Tips and Tricks](#tips-and-tricks)
+  - [Improvements, Next Steps](#improvements-next-steps)
   - [Interesting Links](#interesting-links)
   - [Authorship](#authorship)
 
@@ -275,6 +276,10 @@ if __name__ == "__main__":
 - `wandb.init(project="my_project", ...)`
 - `ml_pipeline.log`
 - Ignore: `wandb`, `artifacts`, `outputs`, `mlruns`, `ml_pipeline.log`
+
+## Improvements, Next Steps
+
+- [ ] Fix the logging of the `check_data` component, which works with `pytest`.
 
 ## Interesting Links
 
