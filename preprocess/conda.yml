@@ -1,4 +1,4 @@
-name: download_data
+name: preprocess_data
 channels:
   - conda-forge
   - defaults
