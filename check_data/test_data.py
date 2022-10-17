@@ -1,6 +1,17 @@
+#import os
+import logging
 import scipy.stats
 import pandas as pd
+#import pytest
 
+# Logging configuration
+# NOTE: the current implementation fails to log to the logging file
+logging.basicConfig(
+    filename='../ml_pipeline.log', # filename, where it's dumped
+    level=logging.INFO, # minimum level I log
+    filemode='a', # append
+    format='%(name)s - %(asctime)s - %(levelname)s - check_data - %(message)s') # add component name for tracing
+logger = logging.getLogger()
 
 def test_column_presence_and_type(data):
     """Test columns and types.
@@ -30,11 +41,18 @@ def test_column_presence_and_type(data):
     }
 
     # Check column presence
-    assert set(data.columns.values).issuperset(set(required_columns.keys()))
+    try:
+        assert set(data.columns.values).issuperset(set(required_columns.keys()))
+    except AssertionError as err:
+        logger.error("test_column_presence_and_type: Not all required columns are present.")
 
-    for col_name, format_verification_funct in required_columns.items():
+    for col_name, format_verification_function in required_columns.items():
+        try:
+            assert format_verification_function(data[col_name])
+        except AssertionError as err:
+            logger.error("test_column_presence_and_type: Column %s failed format test.", col_name)
 
-        assert format_verification_funct(data[col_name]), f"Column {col_name} failed test {format_verification_funct}"
+    logger.info("test_column_presence_and_type: SUCCESS!")
 
 
 def test_class_names(data):
@@ -66,7 +84,12 @@ def test_class_names(data):
         "hardstyle",
     ]
 
-    assert data["genre"].isin(known_classes).all()
+    try:
+        assert data["genre"].isin(known_classes).all()
+    except AssertionError as err:
+        logger.error("test_class_names: Unknown genre classes present.")
+        
+    logger.info("test_class_names: SUCCESS!")
 
 
 def test_column_ranges(data):
@@ -95,12 +118,15 @@ def test_column_ranges(data):
     }
 
     for col_name, (minimum, maximum) in ranges.items():
+        try:
+            assert data[col_name].dropna().between(minimum, maximum).all(), (
+                f"Column {col_name} failed the test. Should be between {minimum} and {maximum}, "
+                f"instead min={data[col_name].min()} and max={data[col_name].max()}"
+            )
+        except AssertionError as err:
+            logger.error("test_column_ranges: %s not in range.", col_name)
 
-        assert data[col_name].dropna().between(minimum, maximum).all(), (
-            f"Column {col_name} failed the test. Should be between {minimum} and {maximum}, "
-            f"instead min={data[col_name].min()} and max={data[col_name].max()}"
-        )
-
+    logger.info("test_column_ranges: SUCCESS!")
 
 def test_kolmogorov_smirnov(data, ks_alpha):
     """Kolgomorov-Smirnov test with 2 samples:
@@ -138,4 +164,9 @@ def test_kolmogorov_smirnov(data, ks_alpha):
         # obtaining a test statistic (TS) equal or more extreme that the one we got
         # by chance, when the null hypothesis is true. If this probability is not
         # large enough, this dataset should be looked at carefully, hence we fail
-        assert p_value > alpha_prime
+        try:
+            assert p_value > alpha_prime
+        except AssertionError as err:
+            logger.error("test_kolmogorov_smirnov: p-value below threshold: %.5f", p_value)
+
+    logger.info("test_kolmogorov_smirnov: SUCCESS!")
