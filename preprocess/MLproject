@@ -1,4 +1,4 @@
-name: download_data
+name: preprocess
 conda_env: conda.yml
 
 entry_points:
