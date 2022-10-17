@@ -16,6 +16,8 @@ Table of contents:
   - [How to Run This: Pipeline Creation and Deployment](#how-to-run-this-pipeline-creation-and-deployment)
     - [Run the Pipeline to Generate the Inference Artifacts](#run-the-pipeline-to-generate-the-inference-artifacts)
     - [Deployment: Use the Inference Artifacts for Performing Predictions](#deployment-use-the-inference-artifacts-for-performing-predictions)
+  - [Notes on How MLflow and Weights & Biases Work](#notes-on-how-mlflow-and-weights--biases-work)
+    - [Tips and Tricks](#tips-and-tricks)
   - [Interesting Links](#interesting-links)
   - [Authorship](#authorship)
 
@@ -207,6 +209,12 @@ Before serving or deploying anything, we need to have run the entire pipeline at
 ```bash
 mlflow run .
 ```
+
+## Notes on How MLflow and Weights & Biases Work
+
+### Tips and Tricks
+
+- `with tempfile.TemporaryDirectory()`
 
 ## Interesting Links
 
