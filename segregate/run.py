@@ -8,23 +8,26 @@ import pandas as pd
 import wandb
 from sklearn.model_selection import train_test_split
 
-
-logging.basicConfig(level=logging.INFO, format="%(asctime)-15s %(message)s")
+# Logging configuration
+logging.basicConfig(
+    filename='../ml_pipeline.log', # filename, where it's dumped
+    level=logging.INFO, # minimum level I log
+    filemode='a', # append
+    format='%(name)s - %(asctime)s - %(levelname)s - segregate - %(message)s') # add component name for tracing
 logger = logging.getLogger()
-
 
 def go(args):
 
-    run = wandb.init(job_type="split_data")
+    run = wandb.init(project="music_genre_classification", job_type="split_data")
 
-    logger.info("Downloading and reading artifact")
+    logger.info("Downloading and reading artifact: %s.", args.input_artifact)
     artifact = run.use_artifact(args.input_artifact)
     artifact_path = artifact.file()
 
     df = pd.read_csv(artifact_path, low_memory=False)
 
     # Split first in model_dev/test, then we further divide model_dev in train and validation
-    logger.info("Splitting data into train, val and test")
+    logger.info("Splitting data into train, val and test.")
     splits = {}
 
     splits["train"], splits["test"] = train_test_split(
@@ -46,7 +49,7 @@ def go(args):
             # Get the path on disk within the temp directory
             temp_path = os.path.join(tmp_dir, artifact_name)
 
-            logger.info(f"Uploading the {split} dataset to {artifact_name}")
+            logger.info("Uploading the %s dataset to %s.", split, artifact_name)
 
             # Save then upload to W&B
             df.to_csv(temp_path)
@@ -58,7 +61,7 @@ def go(args):
             )
             artifact.add_file(temp_path)
 
-            logger.info("Logging artifact")
+            logger.info("Logging artifact %s.", artifact_name)
             run.log_artifact(artifact)
 
             # This waits for the artifact to be uploaded to W&B. If you
