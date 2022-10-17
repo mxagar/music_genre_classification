@@ -1,8 +1,8 @@
-# Reproducible ML Pipelines: Get Data (Step 1/5)
+# Reproducible ML Pipelines: Get Data (Step 1/6)
 
 As introduced in the root `README.md`, we have the following generic steps in a reproducible ML pipeline:
 
-1. Get data: `get_data`
+1. **Get data: `get_data`**
 2. Clean / Proprocess: `preprocess`
 3. Check data: `check_data`
 4. Segregate data: `segregate`
@@ -11,9 +11,9 @@ As introduced in the root `README.md`, we have the following generic steps in a 
 
 ![Generic Reproducible Pipeline](../assets/Reproducible_Pipeline.png)
 
-This folder deals with the step or component number X: **X**.
+This folder deals with the step or component **number 1: Get Data**.
 
-This component is executed by the root level `mlflow` command, which gets the configuration parameters either (1) from the root `config.yaml` using `hydra` (2) or these are hard-coded in the `main.py` script from the root level. MLflow sets the required environment defined in the current/local `conda.yaml` automatically. We can also run this component locally and independently from the general project by invoking the local `MLproject` file as follows:
+This component is executed by the root level `mlflow` command, which gets the configuration parameters either **(1) from the root `config.yaml` using `hydra` (2) or these are hard-coded in the `main.py` script from the root level**. MLflow sets the required environment defined in the current/local `conda.yaml` automatically. We can also run this component locally and independently from the general project by invoking the local `MLproject` file as follows:
 
 ```bash
 # The MLproject file in . is used
@@ -56,11 +56,19 @@ logging.basicConfig(...)
 logger = logging.getLogger()
 
 # Component function
+# args contains all necessary variables
 def go(args):
     # Instantiate W&B run in a context
     # or, if preferred, without a context
     # run = wandb.init(...)
-    with wandb.init(...) as run:
+    # IMPORTANT: set project="my_project"
+    # to share artifacts between different components
+    with wandb.init(project="my_project", ...) as run:
+
+        # Download the artifacts needed
+        artifact = run.use_artifact(...)
+        artifact_path = artifact.file()
+        df = pd.read_parquet(artifact_path)
 
         # Do the WORK and log steps
         # The real component functionality goes HERE
