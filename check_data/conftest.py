@@ -11,7 +11,15 @@ def pytest_addoption(parser):
     parser.addoption("--sample_artifact", action="store")
     parser.addoption("--ks_alpha", action="store")
 
-
+# Since we specify scope="session"
+# this fixture is run once for the complete session.
+# As an effect, the variable `data` triggers the function data() only once
+# and it yields the loaded dataframe.
+# Using `data` as an argument is equivalent to:
+# data_ = data()
+# test_data_length(data_)
+# Note that with scope="function"
+# every test_ function using data would load the complete dataset every time
 @pytest.fixture(scope="session")
 def data(request):
 
