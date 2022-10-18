@@ -1,4 +1,4 @@
-name: decision_tree
+name: train_random_forest
 conda_env: conda.yml
 
 entry_points:

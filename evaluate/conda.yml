@@ -1,4 +1,4 @@
-name: evaluate_data
+name: evaluate
 channels:
   - conda-forge
   - defaults

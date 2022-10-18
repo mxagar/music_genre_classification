@@ -1,4 +1,4 @@
-name: train_data
+name: train
 channels:
   - conda-forge
   - defaults
