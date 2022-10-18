@@ -21,13 +21,17 @@ import wandb
 from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.impute import SimpleImputer
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)-15s %(message)s")
+# Logging configuration
+logging.basicConfig(
+    filename='../ml_pipeline.log', # filename, where it's dumped
+    level=logging.INFO, # minimum level I log
+    filemode='a', # append
+    format='%(name)s - %(asctime)s - %(levelname)s - train - %(message)s') # add component name for tracing
 logger = logging.getLogger()
-
 
 def go(args):
 
-    run = wandb.init(job_type="train")
+    run = wandb.init(project="music_genre_classification", job_type="train")
 
     logger.info("Downloading and reading train artifact")
     train_data_path = run.use_artifact(args.train_data).file()
