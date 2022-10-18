@@ -13,7 +13,11 @@ As introduced in the root `README.md`, we have the following generic steps in a 
 
 This folder deals with the step or component **number 5: Process, Train, Validate**.
 
-This component is executed by the root level `mlflow` command, which gets the configuration parameters either **(1) from the root `config.yaml` using `hydra` (2) or these are hard-coded in the `main.py` script from the root level**. MLflow sets the required environment defined in the current/local `conda.yaml` automatically. We can also run this component locally and independently from the general project by invoking the local `MLproject` file as follows:
+This component is executed by the root level `mlflow` command, which gets the configuration parameters either **(1) from the root `../config.yaml` using `hydra` (2) or these are hard-coded in the `../main.py` script from the root level**. MLflow sets the required environment defined in the current/local `conda.yaml` automatically. We can also run this component locally and independently from the general project by invoking the local `MLproject`.
+
+> :warning: This component should be called by the general `mlflow` command from the root level, because the random forest configuration parameters are extracted from `../config.yaml` by the `../main.py` script. However, I created a dummy `random_forest_pipeline.yaml` configuration file in the component folder for learning purposes; thus, we can run the component locally to see that it works. When the upper-level call is carried out, the `random_forest_pipeline.yaml` is ignored and the parameters are taken from `../config.yaml`.
+
+Local call (to be avoided):
 
 ```bash
 # The MLproject file in . is used
@@ -92,8 +96,11 @@ def go(args):
 
         # Upload any generated artifact(s)
         artifact = wandb.Artifact(...)
-        artifact.add_file(...)
+        artifact.add_file(...) # or .add_dir(...)
         run.log_artifact(artifact)
+
+        # Make sure the artifact is uploaded before any temp dir
+        # gets deleted; this blocks the execution until then
         artifact.wait()
 
         # Log metrics, images, etc.
@@ -114,4 +121,29 @@ if __name__ == "__main__":
 
 The component `train_random_forest` is very important, since it creates the inference artifact. **All the transformations required on new data points need to be defined here as processing steps in the inference pipeline.**
 
-:warining: `random_forest_pipeline.yaml`.
+The main functionality function `go()` call the following functions:
+
+- `get_training_inference_pipeline()`: it generates the processing and classification pipeline.
+  - A `Pipeline` is returned.
+  - `ColumnTransformer()` is used to separate numerical, categorical and text columns; to each chunk, we assign a processing/transformation sub-`Pipeline`, as explained in the following.
+  - `make_pipeline()` is used to create processing sub-`Pipelines` for each of the separated column chunks. We use `sklearn` or custom transformers.
+  - All separated column chunks are reunited and a random forest classifier is appended.
+  - Configuration parameters are obtained from the YAML.
+- `plot_feature_importance()`: feature importances are plotted and uploaded to W&B.
+- `export_model()`:
+  - `mlflow.sklearn.save_model()` is used to serialize the model to a `tempfile.TemporaryDirectory()`.
+  - The artifact is uploaded to W& (and then removed, since we create a temporal directory).
+
+Notes on the exported pipeline:
+
+- The `sklearn` `Pipeline` is not the unique option for creating a pipeline. For Pytorch, we can use `torch.jit.script` instead; examples are provided in my notes on MLOps: [mlops_udacity](https://github.com/mxagar/mlops_udacity/blob/main/02_Reproducible_Pipelines/MLOpsND_ReproduciblePipelines.md).
+- MLflow has several framework pipeline export/import functions in its API:
+  - `mlflow.sklearn.save_model() / load_model()`
+  - `mlflow.pytorch.save_model() / load_model()`
+  - `mlflow.keras.save_model() / load_model()`
+  - `mlflow.onnx.save_model() / load_model()` 
+- When we export a pipeline, we can add two important elements to it:
+  - a signature, which contains a the input/output schema
+  - and input examples for testing
+- MLflow figures out the correct conda environment automatically and generates the `conda.yaml` file. However, we can also explicitly override it with the `conda_env` option.
+- The exported model can be converted to a Docker image that provides a REST API for the model.
