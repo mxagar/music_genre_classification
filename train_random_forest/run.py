@@ -1,8 +1,9 @@
 #!/usr/bin/env python
+import sys
+import os
+import logging
 import argparse
 import itertools
-import logging
-import os
 
 import yaml
 import tempfile
@@ -21,6 +22,8 @@ import wandb
 from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.impute import SimpleImputer
 
+# Add root path so that transformations package is found
+sys.path.insert(1, '..')
 from transformations import ModeImputer
 
 # Logging configuration
