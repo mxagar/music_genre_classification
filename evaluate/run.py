@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import sys
 import argparse
 import itertools
 import logging
@@ -8,12 +9,16 @@ import mlflow.sklearn
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_auc_score, plot_confusion_matrix
 
+# Add root path so that transformations package is found
+sys.path.insert(1, '..')
+from transformations import ModeImputer
+
 # Logging configuration
 logging.basicConfig(
     filename='../ml_pipeline.log', # filename, where it's dumped
     level=logging.INFO, # minimum level I log
     filemode='a', # append
-    format='%(name)s - %(asctime)s - %(levelname)s - train - %(message)s') # add component name for tracing
+    format='%(name)s - %(asctime)s - %(levelname)s - evaluate - %(message)s') # add component name for tracing
 logger = logging.getLogger()
 
 def go(args):
@@ -34,7 +39,7 @@ def go(args):
 
     pipe = mlflow.sklearn.load_model(model_export_path)
 
-    used_columns = list(itertools.chain.from_iterable([x[2] for x in pipe['preprocessor'].transformers]))
+    used_columns = list(itertools.chain.from_iterable([x[2] for x in pipe['processor'].transformers]))
     pred_proba = pipe.predict_proba(X_test[used_columns])
 
     logger.info("Scoring")
