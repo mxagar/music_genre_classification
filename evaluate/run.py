@@ -25,29 +25,35 @@ def go(args):
 
     run = wandb.init(project="music_genre_classification", job_type="test")
 
-    logger.info("Downloading and reading test artifact")
+    logger.info("Downloading and reading test artifact %s.", args.test_data)
     test_data_path = run.use_artifact(args.test_data).file()
     df = pd.read_csv(test_data_path, low_memory=False)
 
     # Extract the target from the features
-    logger.info("Extracting target from dataframe")
+    logger.info("Extracting target from dataframe.")
     X_test = df.copy()
     y_test = X_test.pop("genre")
 
-    logger.info("Downloading and reading the exported model")
+    logger.info("Downloading and reading the exported model %s.", args.model_export)
+    # Since this artifact contains a directory
+    # and not a single file, you will have to use .download() instead of .file()
     model_export_path = run.use_artifact(args.model_export).download()
-
+    # Load pipeline
     pipe = mlflow.sklearn.load_model(model_export_path)
 
+    # Get features/columns that have been used for creating the pipeline
     used_columns = list(itertools.chain.from_iterable([x[2] for x in pipe['processor'].transformers]))
+    # Predict ONLY with allowed columns/features
     pred_proba = pipe.predict_proba(X_test[used_columns])
 
-    logger.info("Scoring")
+    # Evaluation: ROC-AUC
+    logger.info("Scoring: ROC-AUC.")
     score = roc_auc_score(y_test, pred_proba, average="macro", multi_class="ovo")
-
+    
     run.summary["AUC"] = score
 
-    logger.info("Computing confusion matrix")
+    # Evaluation: Confusion matrix
+    logger.info("Computing confusion matrix.")
     fig_cm, sub_cm = plt.subplots(figsize=(10, 10))
     plot_confusion_matrix(
         pipe,
