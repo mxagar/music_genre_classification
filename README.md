@@ -206,6 +206,7 @@ mlflow run git@github.com:mxagar/music_genre_classification.git -v main -P hydra
 
 See [`serving/README.md`](serving/README.md) for more information on:
 
+- How to download and use the inference pipeline to perform predictions within a python script.
 - How to download and use the inference pipeline to perform batch predictions via CLI.
 - How to serve the inference pipeline as a REST API.
 - How to create a docker image that serves the REST API.
@@ -213,6 +214,7 @@ See [`serving/README.md`](serving/README.md) for more information on:
 Before serving or deploying anything, we need to have run the entire pipeline at least once, as explained above, e.g., locally:
 
 ```bash
+# In the root project directory, where config.yaml is
 mlflow run .
 ```
 
