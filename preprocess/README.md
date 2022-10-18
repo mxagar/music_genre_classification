@@ -73,6 +73,10 @@ def go(args):
     # to share artifacts between different components
     with wandb.init(project="my_project", ...) as run:
 
+        # Upload configuration params in a dictionary,
+        # e.g., hyperparameters used
+        run.config.update({...})
+
         # Download the artifacts needed
         artifact = run.use_artifact(...)
         artifact_path = artifact.file()
@@ -86,13 +90,16 @@ def go(args):
 
         # Upload any generated artifact(s)
         artifact = wandb.Artifact(...)
-        artifact.add_file(...)
+        artifact.add_file(...) # or .add_dir(...)
         run.log_artifact(artifact)
+
+        # Make sure the artifact is uploaded before any temp dir
+        # gets deleted; this blocks the execution until then
         artifact.wait()
 
         # Log metrics, images, etc.
-        run.summary['metric_A'] = ...
-        run.log(...)
+        run.log(...) # images, series of values (e.g., accuracy along time)
+        run.summary['metric_A'] = ... # one value
 
 if __name__ == "__main__":
     # Define and parse arguments
