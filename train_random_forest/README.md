@@ -83,6 +83,10 @@ def go(args):
     # to share artifacts between different components
     with wandb.init(project="my_project", ...) as run:
 
+        # Upload configuration params in a dictionary,
+        # e.g., hyperparameters used
+        run.config.update({...})
+
         # Download the artifacts needed
         artifact = run.use_artifact(...)
         artifact_path = artifact.file()
@@ -104,8 +108,8 @@ def go(args):
         artifact.wait()
 
         # Log metrics, images, etc.
-        run.summary['metric_A'] = ...
-        run.log(...)
+        run.log(...) # images, series of values (e.g., accuracy along time)
+        run.summary['metric_A'] = ... # one value
 
 if __name__ == "__main__":
     # Define and parse arguments
@@ -121,7 +125,7 @@ if __name__ == "__main__":
 
 The component `train_random_forest` is very important, since it creates the inference artifact. **All the transformations required on new data points need to be defined here as processing steps in the inference pipeline.**
 
-The main functionality function `go()` call the following functions:
+The main functionality function `go()` calls the following functions:
 
 - `get_training_inference_pipeline()`: it generates the processing and classification pipeline.
   - A `Pipeline` is returned.
@@ -134,7 +138,9 @@ The main functionality function `go()` call the following functions:
   - `mlflow.sklearn.save_model()` is used to serialize the model to a `tempfile.TemporaryDirectory()`.
   - The artifact is uploaded to W& (and then removed, since we create a temporal directory).
 
-Notes on the exported pipeline:
+Note that the train split is further segregated in train/validation. The final training is done with the last train split and the generated plots/metrics are related to the validation split. 
+
+Additional comments on the exported pipeline:
 
 - The `sklearn` `Pipeline` is not the unique option for creating a pipeline. For Pytorch, we can use `torch.jit.script` instead; examples are provided in my notes on MLOps: [mlops_udacity](https://github.com/mxagar/mlops_udacity/blob/main/02_Reproducible_Pipelines/MLOpsND_ReproduciblePipelines.md).
 - MLflow has several framework pipeline export/import functions in its API:
@@ -147,3 +153,17 @@ Notes on the exported pipeline:
   - and input examples for testing
 - MLflow figures out the correct conda environment automatically and generates the `conda.yaml` file. However, we can also explicitly override it with the `conda_env` option.
 - The exported model can be converted to a Docker image that provides a REST API for the model.
+
+The exported pipeline can be downloaded as artifact any time (see step `evaluate`). It consists of a directory with the following files:
+
+```
+.
+├── MLmodel                 # YAML which describes the MLflow model
+├── conda.yaml              # Conda env configuration
+├── input_example.json      # Inpunt example
+└── model.pkl               # Serialized model pipeline
+```
+
+## Hyperparameter Tuning
+
+:construction: TBD.
