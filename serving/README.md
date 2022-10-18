@@ -16,6 +16,8 @@ mlflow run .
 
 Then, a **best practice is to open the W&B interface and to add the tag `prod` to the inference pipeline we'd like to use in production.** That way, we can specify the version/tag easily when downloading the pipeline for using it.
 
+Additionally, we should have committed the complete code to our repository before `mlflow run .`. Besides of that, it's a best practice to create a release with a `Major.Minor.Patch` versioning scheme on the Github repository.
+
 ## Downloading and Using the Inference Pipeline within Python Scripts
 
 If we want to score new data points within a python script, we can base our code in the script `evaluate/run.py`. We could wrap any application around it, e.g., a docker image or anything. The recipe is the following:

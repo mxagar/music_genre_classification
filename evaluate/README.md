@@ -110,3 +110,16 @@ if __name__ == "__main__":
 ```
 
 The component `evaluate` downloads the test split artifact and the inference artifact and computes the ROC-AUC of the model a well as its confusion matrix. Those results are uploaded as artifacts of the run.
+
+The inference artifact can be imported/exported with API call `mlflow.sklearn.save_model() / load_model()`; it is not a single file, but a directory which contains these files:
+
+```
+.
+├── MLmodel                 # YAML which describes the MLflow model
+├── conda.yaml              # Conda env configuration
+├── input_example.json      # Inpunt example
+└── model.pkl               # Serialized model pipeline
+```
+
+If we don't specify another folder, it will be downloaded to `artifacts`.
+

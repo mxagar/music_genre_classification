@@ -164,6 +164,6 @@ The exported pipeline can be downloaded as artifact any time (see step `evaluate
 └── model.pkl               # Serialized model pipeline
 ```
 
-## Hyperparameter Tuning
+## Tracked Experiments and Hyperparameter Tuning
 
-:construction: TBD.
+See [`../README.md`](../README.md) for more information on how to perform iterative experiments and hyperparameter tuning using [hydra sweeps](https://hydra.cc/docs/tutorials/basic/running_your_app/multi-run/).
