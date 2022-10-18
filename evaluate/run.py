@@ -9,9 +9,9 @@ import mlflow.sklearn
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_auc_score, plot_confusion_matrix
 
-# Add root path so that transformations package is found
+# Add root path so that utilities package is found (for custom transformations)
 sys.path.insert(1, '..')
-from transformations import ModeImputer
+from util_lib import ModeImputer
 
 # Logging configuration
 logging.basicConfig(

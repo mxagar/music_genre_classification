@@ -22,9 +22,9 @@ import wandb
 from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.impute import SimpleImputer
 
-# Add root path so that transformations package is found
+# Add root path so that utilities package is found (for custom transformations)
 sys.path.insert(1, '..')
-from transformations import ModeImputer
+from util_lib import ModeImputer
 
 # Logging configuration
 logging.basicConfig(
