@@ -109,44 +109,4 @@ if __name__ == "__main__":
 
 ```
 
-The component `train_random_forest` is very important, since it creates the inference artifact. **All the transformations required on new data points need to be defined here as processing steps in the inference pipeline.**
-
-The main functionality function `go()` call the following functions:
-
-- `get_training_inference_pipeline()`: it generates the processing and classification pipeline.
-  - A `Pipeline` is returned.
-  - `ColumnTransformer()` is used to separate numerical, categorical and text columns; to each chunk, we assign a processing/transformation sub-`Pipeline`, as explained in the following.
-  - `make_pipeline()` is used to create processing sub-`Pipelines` for each of the separated column chunks. We use `sklearn` or custom transformers.
-  - All separated column chunks are reunited and a random forest classifier is appended.
-  - Configuration parameters are obtained from the YAML.
-- `plot_feature_importance()`: feature importances are plotted and uploaded to W&B.
-- `export_model()`:
-  - `mlflow.sklearn.save_model()` is used to serialize the model to a `tempfile.TemporaryDirectory()`.
-  - The artifact is uploaded to W& (and then removed, since we create a temporal directory).
-
-Notes on the exported pipeline:
-
-- The `sklearn` `Pipeline` is not the unique option for creating a pipeline. For Pytorch, we can use `torch.jit.script` instead; examples are provided in my notes on MLOps: [mlops_udacity](https://github.com/mxagar/mlops_udacity/blob/main/02_Reproducible_Pipelines/MLOpsND_ReproduciblePipelines.md).
-- MLflow has several framework pipeline export/import functions in its API:
-  - `mlflow.sklearn.save_model() / load_model()`
-  - `mlflow.pytorch.save_model() / load_model()`
-  - `mlflow.keras.save_model() / load_model()`
-  - `mlflow.onnx.save_model() / load_model()` 
-- When we export a pipeline, we can add two important elements to it:
-  - a signature, which contains a the input/output schema
-  - and input examples for testing
-- MLflow figures out the correct conda environment automatically and generates the `conda.yaml` file. However, we can also explicitly override it with the `conda_env` option.
-- The exported model can be converted to a Docker image that provides a REST API for the model.
-
-The exported pipeline can be downloaded as artifact any time (see step `evaluate`). It consists of a directory with the following files:
-
-```
-.
-├── MLmodel                 # YAML which describes the MLflow model
-├── conda.yaml              # Conda env configuration
-├── input_example.json      # Inpunt example
-└── model.pkl               # Serialized model pipeline
-```
-
-## Hyperparameter Tuning
-
+The component `evaluate` downloads the test split artifact and the inference artifact and computes the ROC-AUC of the model a well as its confusion matrix. Those results are uploaded as artifacts of the run.
