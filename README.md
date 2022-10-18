@@ -16,8 +16,9 @@ Table of contents:
   - [How to Run This: Pipeline Creation and Deployment](#how-to-run-this-pipeline-creation-and-deployment)
     - [Run the Pipeline to Generate the Inference Artifacts](#run-the-pipeline-to-generate-the-inference-artifacts)
     - [Deployment: Use the Inference Artifacts for Performing Predictions](#deployment-use-the-inference-artifacts-for-performing-predictions)
-  - [Notes on How MLflow and Weights & Biases Work](#notes-on-how-mlflow-and-weights--biases-work)
+  - [Notes on How Hydra, MLflow and Weights & Biases Work](#notes-on-how-hydra-mlflow-and-weights--biases-work)
     - [Component Script Structure](#component-script-structure)
+    - [Hyperparameter Tuning](#hyperparameter-tuning)
     - [Tips and Tricks](#tips-and-tricks)
   - [Improvements, Next Steps](#improvements-next-steps)
   - [Interesting Links](#interesting-links)
@@ -215,7 +216,7 @@ Before serving or deploying anything, we need to have run the entire pipeline at
 mlflow run .
 ```
 
-## Notes on How MLflow and Weights & Biases Work
+## Notes on How Hydra, MLflow and Weights & Biases Work
 
 ### Component Script Structure
 
@@ -277,6 +278,11 @@ if __name__ == "__main__":
 
 ```
 
+
+### Hyperparameter Tuning
+
+See [`train_random_forest/README.md`](train_random_forest/README.md) for more information on how to perform hyperparameter tuning using hydra sweeps.
+
 ### Tips and Tricks
 
 - `tempfile.TemporaryDirectory()`, `tempfile.NamedTemporaryFile()`,  or `os.remove(filename)`
@@ -287,6 +293,7 @@ if __name__ == "__main__":
 ## Improvements, Next Steps
 
 - [ ] Fix the logging of the `check_data` component, which works with `pytest`.
+- [ ] Create a (manual) docker image which serves the model.
 
 ## Interesting Links
 
