@@ -2,6 +2,7 @@
 
 This file and folder contain information on:
 
+- How to download and use the inference pipeline to perform predictions within a python script.
 - How to download and use the inference pipeline to perform batch predictions via CLI.
 - How to serve the inference pipeline as a REST API.
 - How to create a docker image that serves the REST API.
@@ -9,10 +10,35 @@ This file and folder contain information on:
 Before serving or deploying anything, we need to have run the entire pipeline at least once, as explained above, e.g., locally:
 
 ```bash
+# In the root project directory, where config.yaml is
 mlflow run .
 ```
 
-### Offline or Batch Inference
+Then, a **best practice is to open the W&B interface and to add the tag `prod` to the inference pipeline we'd like to use in production.** That way, we can specify the version/tag easily when downloading the pipeline for using it.
+
+## Downloading and Using the Inference Pipeline within Python Scripts
+
+If we want to score new data points within a python script, we can base our code in the script `evaluate/run.py`. We could wrap any application around it, e.g., a docker image or anything. The recipe is the following:
+
+```python
+import wandb
+import mlflow.sklearn
+
+run = wandb.init()
+# Get artifact directory path and download it
+#artifact = run.use_artifact('my_project/inference_pipeline:prod', type='pipeline')
+artifact = run.use_artifact('music_genre_classification_prod/model_export:prod', type='pipeline')
+model_export_path = artifact.download()
+# Load pipeline
+pipe = mlflow.sklearn.load_model(model_export_path)
+# Get features/columns that have been used for creating the pipeline
+used_columns = list(itertools.chain.from_iterable([x[2] for x in pipe['processor'].transformers]))
+# Predict ONLY with allowed columns/features
+# X contains the new raw data points
+pred_proba = pipe.predict_proba(X[used_columns])
+```
+
+## Offline or Batch Inference
 
 An offline or batch inference is characterized by many samples inferred, optimizing for throughput.
 
@@ -62,9 +88,9 @@ mlflow models predict -t csv -i artifacts/data_test.csv/v0/data_test.csv -m mode
 
 ```
 
-### Online or Realtime Inference 
+## Online or Realtime Inference 
 
-An online or realtime inference is characterized by one/few samples at a time, optimizing for speed/latency. To apply it, first, we need to get the model artifact as we did before; then, we call `mlflow models serve` instead of `mlflow models predict`. The command `mlflow models serve` creates a microservice with a REST API which we can access in multiple ways, e.g., with Python using `resquests`.
+An online or realtime inference is characterized by one/few samples at a time, optimizing for speed/latency. To apply it, first, we need to get the model artifact as we did before; then, we call `mlflow models serve` instead of `mlflow models predict`. The command `mlflow models serve` creates a microservice with a REST API which we can access in multiple ways, e.g., with Python using `requests`.
 
 The service creation with the REST API:
 
@@ -72,9 +98,9 @@ The service creation with the REST API:
 # Get the inference/model artifact
 cd .../new_empty_folder # serving
 # wandb artifact get [<user>/]<project_name>/<inference_artifact>:<tag> --root model
-wandb artifact get music_genre_classification_prod/model_export:prod --root model
+wandb artifact get music_genre_classification_prod/model_export:prod --root model # downloaded to folder model
 
-# Predict online/realtime
+# Predict online/realtime: Start prediction server 
 # mlflow models: MLflow deployment API; serve = online
 # -m model: folder where the artifact should be
 mlflow models serve -m model &
@@ -86,7 +112,7 @@ mlflow models serve -m model &
 # because sometimes it is not converted correctly by the requests package
 ```
 
-Accessing the REST API with python: We create a script `test_serving.py` and execute it as `python test_serving.py`; the content of `test_serving.py`:
+Accessing the REST API with python: We create a script `serving_example.py` and execute it as `python serving_example.py`; the content of `serving_example.py`:
 
 ```python
 import requests
@@ -134,7 +160,7 @@ print(results)
 print(results.json()) # ['Rap', 'RnB']
 ```
 
-### Docker Image
+## Docker Images
 
 We can create a Docker image which can be instantiated on a Cloud platform (e.g., AWS) as a container. If we expose its port 5000, then the model is listening to the world!
 
@@ -154,6 +180,6 @@ docker run --rm -p 5000:8080 -v ./model:/opt/ml/model "music_genre_classificatio
 # [url to the deployed machine]:5000/invocations
 ```
 
-Unfortunately, I had issues with the Java certifications suing my Apple M1.
+> :warning: Unfortunately, I had issues with the Java certifications suing my Apple M1.
 
 One helpful link to write the Dockerfile manually could be this one (not tried): [Using MLFlow and Docker to Deploy Machine Learning Models](https://medium.com/@paul.bendevis/using-mlflow-and-docker-to-deploy-machine-learning-models-4f7888005e24).
