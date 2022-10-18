@@ -1,0 +1,47 @@
+random_forest:
+  # Whenever we have model or other object with many parameters
+  # we should write config files for them.
+  # That is easier than passing parameters in the code or via CLI
+  # and we can guarantee compatibility in the code in case the model API changes
+  # (i.e., we would simply change the config file).
+  n_estimators: 100
+  criterion: 'gini'
+  max_depth: 13
+  min_samples_split: 2
+  min_samples_leaf: 1
+  min_weight_fraction_leaf: 0.0
+  max_features: 'auto'
+  max_leaf_nodes: null
+  min_impurity_decrease: 0.0
+  min_impurity_split: null
+  bootstrap: true
+  oob_score: false
+  n_jobs: null
+  # This is a different random seed than main.random_seed,
+  # because this is used only within the RandomForest
+  random_state: 42
+  verbose: 0
+  warm_start: false
+  class_weight: "balanced"
+  ccp_alpha: 0.0
+  max_samples: null
+tfidf:
+  max_features: 10
+features:
+  numerical:
+    - "danceability"
+    - "energy"
+    - "loudness"
+    - "speechiness"
+    - "acousticness"
+    - "instrumentalness"
+    - "liveness"
+    - "valence"
+    - "tempo"
+    - "duration_ms"
+  categorical:
+    - "time_signature"
+    - "key"
+  nlp:
+    - "text_feature"
+export_artifact: "model_export"
