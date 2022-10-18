@@ -23,11 +23,10 @@ def go(config: DictConfig):
         #assert isinstance(config["main"]["execute_steps"], list)
         steps_to_execute = config["main"]["execute_steps"]
 
-    # Download step
-    if "download" in steps_to_execute:
+    if "get_data" in steps_to_execute:
 
         _ = mlflow.run(
-            os.path.join(root_path, "download"), # path of component
+            os.path.join(root_path, "get_data"), # path of component
             "main", # entry point
             parameters={ # parameters passed to MLproject
                 "file_url": config["data"]["file_url"],
@@ -94,7 +93,7 @@ def go(config: DictConfig):
             }
         )
         
-    if "random_forest" in steps_to_execute:
+    if "train_random_forest" in steps_to_execute:
 
         # Serialize decision tree configuration
         # Whenever we have model or other object with many parameters
@@ -109,7 +108,7 @@ def go(config: DictConfig):
         with open(model_config, "w+") as fp:
             fp.write(OmegaConf.to_yaml(config["random_forest_pipeline"]))
 
-        ## YOUR CODE HERE: call the random_forest step
+        ## YOUR CODE HERE: call the train_random_forest step
         # --train_data {train_data}
         # --model_config {model_config}
         # --export_artifact {export_artifact}
@@ -117,7 +116,7 @@ def go(config: DictConfig):
         # --val_size {val_size}
         # --stratify {stratify}
         _ = mlflow.run(
-            os.path.join(root_path, "random_forest"),
+            os.path.join(root_path, "train_random_forest"),
             "main",
             parameters={
                 "train_data": "data_train.csv:latest",
