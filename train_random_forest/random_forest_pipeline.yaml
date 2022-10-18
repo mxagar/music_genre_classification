@@ -1,3 +1,6 @@
+# This file has been extracted from ../config.yaml
+# Use the root-level mlflow call to skip loading this file
+# and instead use the parameters in ../config.yaml
 random_forest:
   # Whenever we have model or other object with many parameters
   # we should write config files for them.
