@@ -18,7 +18,9 @@ Table of contents:
     - [Deployment: Use the Inference Artifacts for Performing Predictions](#deployment-use-the-inference-artifacts-for-performing-predictions)
   - [Notes on How Hydra, MLflow and Weights & Biases Work](#notes-on-how-hydra-mlflow-and-weights--biases-work)
     - [Component Script Structure](#component-script-structure)
-    - [Hyperparameter Tuning](#hyperparameter-tuning)
+    - [Tracked Experiments and Hyperparameter Tuning](#tracked-experiments-and-hyperparameter-tuning)
+      - [Hyperparameter Tuning with Hydra Sweeps](#hyperparameter-tuning-with-hydra-sweeps)
+    - [MLflow Tracking and W&B Model Registries](#mlflow-tracking-and-wb-model-registries)
     - [Tips and Tricks](#tips-and-tricks)
   - [Improvements, Next Steps](#improvements-next-steps)
   - [Interesting Links](#interesting-links)
@@ -47,27 +49,37 @@ The file structure of the root folder is the following:
 │   ├── MLproject
 │   ├── conda.yml
 │   └── run.py
+│   └── README.md
 ├── preprocess/
 │   ├── MLproject
 │   ├── conda.yml
 │   └── run.py
+│   └── README.md
 ├── check_data/
 │   ├── MLproject
 │   ├── conda.yml
 │   ├── conftest.py
 │   └── test_data.py
+│   └── README.md
 ├── segregate/
 │   ├── MLproject
 │   ├── conda.yml
 │   └── run.py
+│   └── README.md
 ├── train_random_forest/
 │   ├── MLproject
 │   ├── conda.yml
 │   └── run.py
+│   └── README.md
 ├── evaluate/
 │   ├── MLproject
 │   ├── conda.yml
 │   └── run.py
+│   └── README.md
+├── util_lib/
+│   ├── __init__.py
+│   ├── transformations.py
+│   └── README.md
 └── serving/
     ├── README.md
     ├── serving_example.py
@@ -102,6 +114,8 @@ Pipeline steps or components:
     - The artifacts related to the test split and the inference pipeline are downloaded and used to compute the metrics with the test dataset.
 
 Obviously, not all steps need to be carried out every time; to that end, with have the parameter `main.execute_steps` in the `config.yaml`. We can override it when calling `mlflow run`, as shown in the section [How to Run This](#how-to-run-pipeline-creation-and-deployment).
+
+Note that the folder [`util_lib`](util_lib) is a utility package used by some of the components; in particular, it contains custom feature transformers that are employed in `train_random_forest` and `evaluate`. It can be extended with further shared functionalities.
 
 ### Data Analysis and Serving
 
@@ -280,10 +294,142 @@ if __name__ == "__main__":
 
 ```
 
+### Tracked Experiments and Hyperparameter Tuning
 
-### Hyperparameter Tuning
+> :warning: Even though experiment tracking and hyperparameter tuning is mainly part of the `train_random_forest` component, I explain it here, because [hydra sweeps](https://hydra.cc/docs/tutorials/basic/running_your_app/multi-run/) are used for grid searches. These can be launched with `mlflow` where the `config.yaml` loaded by hydra is located, i.e., in the project root in our case.
 
-See [`train_random_forest/README.md`](train_random_forest/README.md) for more information on how to perform hyperparameter tuning using hydra sweeps.
+Machine learning pipelines often require many iterations and experiments to solve issues characteristic to data modeling, for instance:
+
+- Unexpected columns, unexpected values, etc.
+- Class imbalance.
+- Hyperparameter optimization after the validation.
+
+Due to that extremely iterative nature of ML environments, we should:
+
+- Plan iterations in the development process.
+- Be systematic: change one thing at the time and track both code, parameters and data.
+
+Additionally, each experiment needs to be **reproducible**; to that end, we need to uses randomness seeds whenever randomness is applied.
+
+We should commit to our repository the code before running an experiment; that way, the code state is stored with a hash id and if we click on the **info button** of the run in the W&B web interface (left menu bar), we'll get the git checkout command that downloads the precise code status that was used for the experiment! For example:
+
+```
+git checkout -b "crisp-armadillo-2" c48420c28324e7b1b52aa84523b514f9944a21a0
+```
+
+In that info panel, we can see also the configuration parameters we add to the run/experiment in the code.
+
+```python
+import wandb
+
+# New run
+run = wandb.init(...)
+
+# Storing hyper parameters
+# We store parameters in dictionaries which can be nested
+run.config.update({
+    "batch_size": 128,
+    "weight_decay": 0.01,
+    "augmentations": {
+        "rot_angle": 45,
+        "crop_size": 224
+    }
+})
+
+# Log one value
+run.summary['accuracy'] = 0.9
+
+# Time varying metrics - last reported in table
+for i in range(10):
+    run.log(
+        {
+            "loss": 1.2 - i * 0.1
+        }
+    )
+
+# Log multiple time-varying metrics
+for i in range(10):
+    run.log(
+        {
+            "recall": 0.8 + i * 0.01,
+            "ROC": 0.1 + i**2 * 0.01
+        }
+    )
+
+# Explicit x-axis
+for i in range(10):
+    run.log(
+        {
+            "precision": 0.8 + i * 0.01,
+            "epoch": i
+        }
+    )
+
+# Plots
+fig = plt.plot(...)
+run.log({
+    "image": wandb.Image(fig)
+})
+
+```
+
+#### Hyperparameter Tuning with Hydra Sweeps
+
+Hyperparameter tuning is one of the typical examples in which we iteratively run different experiments. We can perform grid searches with [hydra sweeps](https://hydra.cc/docs/tutorials/basic/running_your_app/multi-run/); to that end, first, we need to add the dependencies `hydra-joblib-launcher` and `hydra-core`.
+
+Then, we can override the parameters in the `config.yaml` and perform grid searches as follows:
+
+```bash
+## Experiment 1
+# We override max_depth
+mlflow run . \
+-P hydra_options="random_forest_pipeline.random_forest.max_depth=5"
+
+## Experiment 2
+# We override n_estimators
+mlflow run . \
+-P hydra_options="random_forest_pipeline.random_forest.n_estimators=10"
+
+## Experiment 3
+# Override max_depth with values 1,5,10
+mlflow run . \
+-P hydra_options="main.execute_steps='train_random_forest' random_forest_pipeline.random_forest.max_depth=1,5,10 -m"
+# Override max_depth with values 1-10 increased by 2
+mlflow run . \
+-P hydra_options="main.execute_steps='train_random_forest' random_forest_pipeline.random_forest.max_depth=range(1,10,2) -m"
+
+## Experiment 4
+# Sweep multiple parameters
+# Note we can use range()
+# Additionally, only the step/component train_random_forest is run
+mlflow run . \
+-P hydra_options="hydra/launcher=joblib main.execute_steps='train_random_forest' random_forest_pipeline.random_forest.max_depth=range(10,50,10) random_forest_pipeline.tfidf.max_features=range(50,200,50) -m"
+
+```
+
+At the end, we check the runs of the project in the table view of W&B: we hide all columns except the metric we want to optimize (AUC) and the hyperparameters we have varied (e.g., `tfidf.max_features`, `random_forest.max_depth`). We might decide not to choose the model with the best AUC, but the one with an AUC value close to the best but less complex (smaller depth and less features).
+
+Since the CLI is limited to 250 characters, we can also perform parameter sweeps via the `config.yaml`; in that case we would simple execute `mlflow run .`.
+
+Examples: 
+
+- [Sweep demo](https://wandb.ai/example-team/sweep-demo)
+- Associated Github repository is [pytorch-cnn-fashion](https://github.com/wandb/examples/tree/master/examples/pytorch/pytorch-cnn-fashion).
+- [W&B examples](https://github.com/wandb/examples).
+
+### MLflow Tracking and W&B Model Registries
+
+In this boilerplate, I use
+
+- Weights and biases for managing artifacts and tracking runs/experiments
+- MLflow for managing component/step executions
+- and hydra for controlling the configurations for MLflow.
+
+However, these tools can do much more; for instance:
+
+- [MLflow can track](https://www.mlflow.org/docs/latest/tracking.html).
+- [W&B has a model registry](https://wandb.ai/registry/model).
+- [Hydra can be used for more complex hierarchical configurations by composition and override through config files and the command line](https://hydra.cc/docs/intro/).
 
 ### Tips and Tricks
 
