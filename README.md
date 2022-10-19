@@ -426,6 +426,8 @@ Examples:
 - Associated Github repository is [pytorch-cnn-fashion](https://github.com/wandb/examples/tree/master/examples/pytorch/pytorch-cnn-fashion).
 - [W&B examples](https://github.com/wandb/examples).
 
+Finally, see also my notes on the **alternative of applying `GridSearchCV`** in `train_random_forest`: [README.md](./train_random_forest/README.md).
+
 ### MLflow Tracking and W&B Model Registries
 
 In this boilerplate, I use
