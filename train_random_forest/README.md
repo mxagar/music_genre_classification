@@ -171,6 +171,33 @@ The exported pipeline can be downloaded as artifact any time (see step `evaluate
 └── model.pkl               # Serialized model pipeline
 ```
 
-## Tracked Experiments and Hyperparameter Tuning
+## Tracked Experiments and Hyperparameter Tuning: `GridSearchCV`
 
 See [`../README.md`](../README.md) for more information on how to perform iterative experiments and hyperparameter tuning using [hydra sweeps](https://hydra.cc/docs/tutorials/basic/running_your_app/multi-run/).
+
+Note that hyperparameter tuning is completely left to hydra in this boilerplate. This has the advantage of tracking all experiments and selecting not the set of parameters with the best score, but the one that yields a good score and a simple model.
+
+However, we can automate that hyperparameter tuning with `GridSearchCV`, as it is done in the notebook [Modeling.ipynb](../data_analysis/Modeling.ipynb). Then, we export the best model (with `mlflow.sklearn.save_model()`) and the parameters (as a YAML). Example:
+
+```python
+# Define Grid Search: parameters to try, cross-validation size
+param_grid = {
+    'classifier__n_estimators': [100, 150, 200],
+    'classifier__max_features': ['sqrt', 'log2'],
+    'classifier__criterion': ['gini', 'entropy'],
+    'classifier__max_depth': [None]+[n for n in range(5,20,5)]
+}
+# Grid search
+search = GridSearchCV(estimator=pipe,
+                      param_grid=param_grid,
+                      cv=3,
+                      scoring='roc_auc_ovr') # ovr = one versus rest, to make roc_auc work with multi-class
+# Find best hyperparameters and best estimator pipeline
+search.fit(X, y)
+# We would export this model
+rfc_pipe = search.best_estimator_
+# This is the best score
+print(search.best_score_)
+# We can export the best parameters to a YAML and load them for inference
+print(search.best_params_)
+```
