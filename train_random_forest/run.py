@@ -53,18 +53,26 @@ def go(args):
     y = X.pop("genre")
 
     logger.info("Splitting train/val.")
+    # Instead of splitting as train/val,
+    # we can use K-fold cross-validation in a GridSearchCV, too.
     X_train, X_val, y_train, y_val = train_test_split(
         X,
         y,
-        test_size=args.val_size,
+        test_size=args.val_size, # validation
         stratify=df[args.stratify] if args.stratify != "null" else None,
-        random_state=args.random_seed,
+        random_state=args.random_seed
     )
 
     logger.info("Setting up pipeline.")
     pipe, used_columns = get_training_inference_pipeline(args)
 
     logger.info("Fitting.")
+    # Instead of fitting the pipeline,
+    # it would be better to perform a grid search with GridSearchCV
+    # to detect the best hyperparameter set and pipeline.
+    # Then, we'd export the best pipeline and its parameters as a YAML.
+    # LOOK at the notebook ../data_analysis/Modeling.ipynb for an example.
+    # Here, we leave hyperparameter tuning to be done with hydra sweeps. 
     pipe.fit(X_train[used_columns], y_train)
 
     # Evaluate / Validation
@@ -128,7 +136,9 @@ def get_training_inference_pipeline(args):
     # 1. if we run this script from the root level the YAML file is generated on-the-fly
     # by omegaconf using ../config.yaml and destroyed afterwards.
     # 2. if we run this locally for testing, we use the local random_forest_pipeline.yaml
-    # but we should not do that in production! Instead, we should use the root level run! 
+    # but we should not do that in production! Instead, we should use the root level run!
+    # 3. YAML files contain 'null', 'true', 'false';
+    # these need to be parsed to None, True, False -> use yaml.safe_load()
     with open(args.model_config) as fp: # random_forest_pipeline.yaml
         model_config = yaml.safe_load(fp)
     # Add it to the W&B configuration so the values for the hyperparams
@@ -146,11 +156,11 @@ def get_training_inference_pipeline(args):
     # as done in transformations.py
     
     # Categorical processing pipeline
-    # Here, I show how a custom transformer is used
+    # Here, I show how a custom transformer is used as an example
     categorical_features = sorted(model_config["features"]["categorical"])
     categorical_transformer = make_pipeline(
-        #SimpleImputer(strategy="constant", fill_value=0), OrdinalEncoder()
-        ModeImputer(variables=categorical_features), OrdinalEncoder()
+        #SimpleImputer(strategy="constant", fill_value=0), OrdinalEncoder(handle_unknown='ignore')
+        ModeImputer(variables=categorical_features), OrdinalEncoder(handle_unknown='ignore')
     )
     
     # Numerical processing pipeline
@@ -169,7 +179,7 @@ def get_training_inference_pipeline(args):
         reshape_to_1d,
         TfidfVectorizer(
             binary=True, max_features=model_config["tfidf"]["max_features"]
-        ),
+        )
     )
     
     # Put the 3 tracks together into one pipeline using the ColumnTransformer
@@ -191,6 +201,7 @@ def get_training_inference_pipeline(args):
     # Pipeline needs to be used here.
     # The result is a pipeline with two high-level elements: processor and classifier.
     # Note that we pass the configuration dictionary to the model.
+    # We should have complete control of the estimator parameters.
     pipe = Pipeline(
         steps=[
             ("processor", processor),
