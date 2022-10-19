@@ -236,6 +236,7 @@ mlflow run .
 
 ## Notes on How Hydra, MLflow and Weights & Biases Work
 
+
 ### Component Script Structure
 
 ```python
@@ -413,7 +414,6 @@ mlflow run . \
 # Additionally, only the step/component train_random_forest is run
 mlflow run . \
 -P hydra_options="hydra/launcher=joblib main.execute_steps='train_random_forest' random_forest_pipeline.random_forest.max_depth=range(10,50,10) random_forest_pipeline.tfidf.max_features=range(50,200,50) -m"
-
 ```
 
 At the end, we check the runs of the project in the table view of W&B: we hide all columns except the metric we want to optimize (AUC) and the hyperparameters we have varied (e.g., `tfidf.max_features`, `random_forest.max_depth`). We might decide not to choose the model with the best AUC, but the one with an AUC value close to the best but less complex (smaller depth and less features).
@@ -453,6 +453,7 @@ However, these tools can do much more; for instance:
 
 - [ ] Fix the logging of the `check_data` component, which works with `pytest`.
 - [ ] Create a (manual) docker image which serves the model.
+- [ ] Add `GridSearchCV` to the component `train_random_forest` as done in [`Modeling.ipynb`](./data_analysis/Modeling.ipynb).
 
 ## Interesting Links
 
