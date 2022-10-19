@@ -176,7 +176,7 @@ First, we need to run the entire pipeline (all steps) at least once (locally or 
 
 ### Run the Pipeline to Generate the Inference Artifacts
 
-In order to **run the code locally**:
+In order to **run the complete project code locally**:
 
 ```bash
 cd path-to-main-mlflow-file
@@ -196,7 +196,9 @@ mlflow run . -P hydra_options="main.execute_steps='train_random_forest,evaluate'
 mlflow run . -P hydra_options="main.project_name='music_genre_classification_prod'"
 ```
 
-Since the repository is publicly released, anyone can **run the code remotely** as follows:
+We can also run **isolated project components locally**; for that, we need to `cd` to the selected component and execute `mlflow` with the corresponding arguments. The `README.md` of each component provides the necessary call. However, note that any component needs input artifacts created upstream to be executed successfully -- thus, these must have been already created and stored in the W&B servers.
+
+Finally, since the repository is publicly released, anyone can **run the complete project code remotely** as follows:
 
 ```bash
 # Go to a new empty folder
