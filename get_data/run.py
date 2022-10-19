@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import os
 import argparse
 import logging
 import pathlib
@@ -27,7 +28,12 @@ def go(args):
     with tempfile.NamedTemporaryFile(mode='wb+') as fp:
 
         logger.info("Creating run")
-        with wandb.init(project="music_genre_classification", job_type="download_data") as run:
+        # Set default project name
+        # but allow to override it via config.yaml with main.py or CLI with hydra
+        project_name = "music_genre_classification"
+        if "WANDB_PROJECT" in os.environ:
+            project_name = os.environ["WANDB_PROJECT"]
+        with wandb.init(project=project_name, job_type="get_data") as run:
             # Download the file streaming and write to open temp file
             with requests.get(args.file_url, stream=True) as r:
                 for chunk in r.iter_content(chunk_size=8192):

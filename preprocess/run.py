@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-import argparse
-import logging
 import os
+import logging
+import argparse
 
 import pandas as pd
 import wandb
@@ -16,7 +16,12 @@ logger = logging.getLogger()
 
 def go(args):
 
-    run = wandb.init(project="music_genre_classification", job_type="preprocess_data")
+    # Set default project name
+    # but allow to override it via config.yaml with main.py or CLI with hydra
+    project_name = "music_genre_classification"
+    if "WANDB_PROJECT" in os.environ:
+        project_name = os.environ["WANDB_PROJECT"]
+    run = wandb.init(project=project_name, job_type="preprocess_data")
 
     logger.info("Downloading artifact: %s", args.input_artifact)
     artifact = run.use_artifact(args.input_artifact)

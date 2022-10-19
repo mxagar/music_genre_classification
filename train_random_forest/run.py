@@ -36,7 +36,12 @@ logger = logging.getLogger()
 
 def go(args):
 
-    run = wandb.init(project="music_genre_classification", job_type="train")
+    # Set default project name
+    # but allow to override it via config.yaml with main.py or CLI with hydra
+    project_name = "music_genre_classification"
+    if "WANDB_PROJECT" in os.environ:
+        project_name = os.environ["WANDB_PROJECT"]    
+    run = wandb.init(project=project_name, job_type="train")
 
     logger.info("Downloading and reading train artifact %s.", args.train_data)
     train_data_path = run.use_artifact(args.train_data).file()

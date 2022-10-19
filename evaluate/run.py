@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import sys
+import os
 import argparse
 import itertools
 import logging
@@ -23,7 +24,12 @@ logger = logging.getLogger()
 
 def go(args):
 
-    run = wandb.init(project="music_genre_classification", job_type="test")
+    # Set default project name
+    # but allow to override it via config.yaml with main.py or CLI with hydra
+    project_name = "music_genre_classification"
+    if "WANDB_PROJECT" in os.environ:
+        project_name = os.environ["WANDB_PROJECT"]    
+    run = wandb.init(project=project_name, job_type="evaluate")
 
     logger.info("Downloading and reading test artifact %s.", args.test_data)
     test_data_path = run.use_artifact(args.test_data).file()

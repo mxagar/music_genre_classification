@@ -1,8 +1,14 @@
+import os
 import pytest
 import pandas as pd
 import wandb
 
-run = wandb.init(project="music_genre_classification", job_type="data_tests")
+# Set default project name
+# but allow to override it via config.yaml with main.py or CLI with hydra
+project_name = "music_genre_classification"
+if "WANDB_PROJECT" in os.environ:
+    project_name = os.environ["WANDB_PROJECT"]
+run = wandb.init(project=project_name, job_type="data_tests")
 
 def pytest_addoption(parser):
     parser.addoption("--reference_artifact", action="store")

@@ -79,9 +79,16 @@ def go(args):
     # Instantiate W&B run in a context
     # or, if preferred, without a context
     # run = wandb.init(...)
-    # IMPORTANT: set project="my_project"
-    # to share artifacts between different components
-    with wandb.init(project="my_project", ...) as run:
+    # IMPORTANT: 
+    # 1) Set project name
+    # to share artifacts between different components,
+    # but allow to override it via config.yaml with main.py or CLI with hydra
+    # 2) Set also a meaningful job type related to the component:
+    # get_data, preprocess_data, check_data, split_data, train, evaluate, etc.
+    project_name = "my_project"
+    if "WANDB_PROJECT" in os.environ:
+        project_name = os.environ["WANDB_PROJECT"]
+    with wandb.init(project=project_name, job_type="job_of_module") as run:
 
         # Upload configuration params in a dictionary,
         # e.g., hyperparameters used
