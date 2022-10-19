@@ -17,7 +17,7 @@ Table of contents:
     - [Run the Pipeline to Generate the Inference Artifacts](#run-the-pipeline-to-generate-the-inference-artifacts)
     - [Deployment: Use the Inference Artifacts for Performing Predictions](#deployment-use-the-inference-artifacts-for-performing-predictions)
   - [Notes on How Hydra, MLflow and Weights & Biases Work](#notes-on-how-hydra-mlflow-and-weights--biases-work)
-    - [Component Script Structure](#component-script-structure)
+    - [Component Script Structure: `run.py`](#component-script-structure-runpy)
     - [Tracked Experiments and Hyperparameter Tuning](#tracked-experiments-and-hyperparameter-tuning)
       - [Hyperparameter Tuning with Hydra Sweeps](#hyperparameter-tuning-with-hydra-sweeps)
     - [MLflow Tracking and W&B Model Registries](#mlflow-tracking-and-wb-model-registries)
@@ -236,8 +236,31 @@ mlflow run .
 
 ## Notes on How Hydra, MLflow and Weights & Biases Work
 
+In this boilerplate, I use
 
-### Component Script Structure
+- [Weights and Biases](https://wandb.ai/site), or `wandb`, for managing artifacts and tracking runs/experiments
+- [MLflow](https://mlflow.org), or `mlflow`, for managing component/step executions
+- and [Hydra](https://hydra.cc), or `hydra`, for controlling the configurations for MLflow.
+
+One could say that `hydra` configures `mlflow`, and `mlflow` manages the execution of pipeline components/steps, which are tracked with `wandb`.
+
+At end of the day, the goal is to have a reproducible ML pipeline from which executions and artifacts are tracked. To that end, 
+
+- runs
+- experiments
+- projects
+
+[tutorials](https://wandb.ai/site/tutorials)
+[documentation](https://docs.wandb.ai/)
+
+![Simplified project structure](./assets/boilerplate_structure.png)
+
+![Simplified project files](./assets/boilerplate_files.png)
+
+
+### Component Script Structure: `run.py`
+
+In the following, I provide a schematic but extensively commented skeleton of a component module. It shows basically how the tracking is done with `wandb`.
 
 ```python
 # Imports
