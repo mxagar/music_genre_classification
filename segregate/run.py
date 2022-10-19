@@ -35,11 +35,12 @@ def go(args):
     logger.info("Splitting data into train, val and test.")
     splits = {}
 
+    # Note that the complete df is split, without differentiating X & y
     splits["train"], splits["test"] = train_test_split(
         df,
         test_size=args.test_size,
         random_state=args.random_state,
-        stratify=df[args.stratify] if args.stratify != 'null' else None,
+        stratify=df[args.stratify] if args.stratify != 'null' else None
     )
 
     # Save the artifacts. We use a temporary directory so we do not leave
