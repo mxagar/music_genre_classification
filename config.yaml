@@ -1,3 +1,5 @@
+# YAML files contain 'null', 'true', 'false';
+# these need to be parsed to None, True, False -> use yaml.safe_load()
 main:
   project_name: music_genre_classification # production name: music_genre_classification_prod; add tag prod
   experiment_name: dev
