@@ -9,6 +9,8 @@ from omegaconf import DictConfig, OmegaConf
 def go(config: DictConfig):
 
     # Setup the wandb experiment. All runs will be grouped under this name
+    # Any project name set in downstream components will be overwritten
+    # We can change these variable names via CLI using hydra
     os.environ["WANDB_PROJECT"] = config["main"]["project_name"]
     os.environ["WANDB_RUN_GROUP"] = config["main"]["experiment_name"]
 
@@ -38,7 +40,6 @@ def go(config: DictConfig):
 
     if "preprocess" in steps_to_execute:
 
-        ## YOUR CODE HERE: call the preprocess step
         # --input_artifact {input_artifact}
         # --artifact_name {artifact_name}
         # --artifact_type {artifact_type}
@@ -57,7 +58,6 @@ def go(config: DictConfig):
         
     if "check_data" in steps_to_execute:
 
-        ## YOUR CODE HERE: call the check_data step
         # --reference_artifact {reference_artifact}
         # --sample_artifact {sample_artifact}
         # --ks_alpha {ks_alpha}
@@ -73,7 +73,6 @@ def go(config: DictConfig):
 
     if "segregate" in steps_to_execute:
 
-        ## YOUR CODE HERE: call the segregate step
         # --input_artifact {input_artifact}
         # --artifact_root {artifact_root}
         # --artifact_type {artifact_type}
@@ -108,7 +107,6 @@ def go(config: DictConfig):
         with open(model_config, "w+") as fp:
             fp.write(OmegaConf.to_yaml(config["random_forest_pipeline"]))
 
-        ## YOUR CODE HERE: call the train_random_forest step
         # --train_data {train_data}
         # --model_config {model_config}
         # --export_artifact {export_artifact}
@@ -130,7 +128,6 @@ def go(config: DictConfig):
 
     if "evaluate" in steps_to_execute:
 
-        ## YOUR CODE HERE: call the evaluate step
         # --model_export {model_export}
         # --test_data {test_data}
         _ = mlflow.run(
