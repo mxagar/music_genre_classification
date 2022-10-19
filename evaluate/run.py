@@ -38,7 +38,7 @@ def go(args):
     # Extract the target from the features
     logger.info("Extracting target from dataframe.")
     X_test = df.copy()
-    y_test = X_test.pop("genre")
+    y_test = X_test.pop("genre") # get column and drop from frame!
 
     logger.info("Downloading and reading the exported model %s.", args.model_export)
     # Since this artifact contains a directory
@@ -49,7 +49,7 @@ def go(args):
 
     # Get features/columns that have been used for creating the pipeline
     used_columns = list(itertools.chain.from_iterable([x[2] for x in pipe['processor'].transformers]))
-    # Predict ONLY with allowed columns/features
+    # Predict ONLY with allowed columns/features; if it was trained like that!
     pred_proba = pipe.predict_proba(X_test[used_columns])
 
     # Evaluation: ROC-AUC

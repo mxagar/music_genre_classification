@@ -50,7 +50,7 @@ def go(args):
     # Extract the target from the features
     logger.info("Extracting target from dataframe.")
     X = df.copy()
-    y = X.pop("genre")
+    y = X.pop("genre") # get column and drop from frame!
 
     logger.info("Splitting train/val.")
     # Instead of splitting as train/val,
