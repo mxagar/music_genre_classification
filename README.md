@@ -48,7 +48,10 @@ In this boilerplate, Weights & Biases is used to track artifacts and component e
 
 The final product of the ML pipeline is the **inference artifact**, which consists of the *processing pipeline* and the *trained model*.
 
-Note that s
+Note that some artifacts and components have been marked with lighter colors and dashed lines:
+
+- EDA: although the data analysis is necessary, it is considered prior to the generation of the ML pipeline and it should be stand-alone. However, it can be tracked and it uses the uploaded dataset, as shown in its dedicated folder `data_analysis`.
+- Process: The data processing can be performed before or inside the training component; if it's carried out before, the processing pipeline must be exported, along with the processed dataset. If it's carried out in the training component, we can skip exporting those, since the processing becomes part of the inference pipeline. In general, having an extra processing component is not that uncommon in small projects; however, as projects gain in complexity, it is **very recommendable to integrate all the processing in the training component within a `Pipeline` object**. **For the rest of this project, I will assume that the processing is inside the training component.** In any case, new data should be transformed with any processing we define.
 
 The file structure of the root folder reflects the sequence diagram of the previous figure:
 
@@ -512,7 +515,7 @@ However, these tools can do much more; for instance:
 - `wandb.init(project="my_project", ...)`
 - `ml_pipeline.log`
 - Ignore: `wandb`, `artifacts`, `outputs`, `mlruns`, `ml_pipeline.log`
-- Commit before running.
+- Commit always before running.
 
 ## Improvements, Next Steps
 
