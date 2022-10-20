@@ -16,7 +16,7 @@ Table of contents:
   - [How to Run This: Pipeline Creation and Deployment](#how-to-run-this-pipeline-creation-and-deployment)
     - [Run the Pipeline to Generate the Inference Artifacts](#run-the-pipeline-to-generate-the-inference-artifacts)
     - [Deployment: Use the Inference Artifacts for Performing Predictions](#deployment-use-the-inference-artifacts-for-performing-predictions)
-  - [Notes on How Hydra, MLflow and Weights & Biases Work](#notes-on-how-hydra-mlflow-and-weights--biases-work)
+  - [Notes Hydra, MLflow and Weights & Biases](#notes-hydra-mlflow-and-weights--biases)
     - [Component Script Structure: `run.py`](#component-script-structure-runpy)
     - [Tracked Experiments and Hyperparameter Tuning](#tracked-experiments-and-hyperparameter-tuning)
       - [Hyperparameter Tuning with Hydra Sweeps](#hyperparameter-tuning-with-hydra-sweeps)
@@ -234,26 +234,46 @@ Before serving or deploying anything, we need to have run the entire pipeline at
 mlflow run .
 ```
 
-## Notes on How Hydra, MLflow and Weights & Biases Work
+## Notes Hydra, MLflow and Weights & Biases
 
 In this boilerplate, I use
 
-- [Weights and Biases](https://wandb.ai/site), or `wandb`, for managing artifacts and tracking runs/experiments
-- [MLflow](https://mlflow.org), or `mlflow`, for managing component/step executions
-- and [Hydra](https://hydra.cc), or `hydra`, for controlling the configurations for MLflow.
+- [Weights and Biases](https://wandb.ai/site), or `wandb`, for managing artifacts and tracking runs/experiments,
+- [MLflow](https://mlflow.org), or `mlflow`, for managing component/step executions,
+- [Hydra](https://hydra.cc), or `hydra`, for controlling the configurations for MLflow,
+- [Conda](https://docs.conda.io/en/latest/), or `conda`, for environment management,
+- and [Pandas](https://pandas.pydata.org) and [Scikit-Learn](https://scikit-learn.org/stable/) for data analysis and modeling, respectively.
 
-One could say that `hydra` configures `mlflow`, and `mlflow` manages the execution of pipeline components/steps, which are tracked with `wandb`.
+In summary, one could say that `hydra` configures `mlflow`, while `mlflow` manages the execution of pipeline components/steps in isolated `conda` environments, and these components are tracked with `wandb`. At end of the day, the goal is to have a reproducible ML pipeline from which executions and artifacts are tracked. 
 
-At end of the day, the goal is to have a reproducible ML pipeline from which executions and artifacts are tracked. To that end, 
+Regarding `wandb` and its tracking functionality, we have the following elements:
 
-- runs
-- experiments
-- projects
+- Runs: the minimum unit which is tracked; each component/step creates a unique run when it's executed. Additionally, we can assign a `job_type` tag to a run.
+- Experiments or groups: collections of runs, e.g., for development.
+- Projects: collections of runs with the same goal, e.g., the project or application itself; usually, all the components are defined under the same project.
+- Artifacts: any file/directory produced during a run; they are all versioned and uploaded if anything changes in their content.
+
+The interaction with `wand` in the code happens in the component modules themselves, and the section [Component Script Structure](#component-script-structure-runpy) shows a schematic but well documented example. But it doesn't end there: all the tracking and lineage information, and more is in the web interface [https://wandb.ai/](https://wandb.ai/). 
+
+Regarding `mlflow`, we also have `run` objects, but these are treated execution commands of component modules. These executions happen via an `MLproject` configuration file. Each component has an `MLproject` file, which contains
+
+- A command that is to be executed; this command usually executes the component module, e.g., `run.py`.
+- The reference of the `conda.yaml` file that defined the environment.
+- A list of parameters that are passed to the executed command as CLI arguments.
+
+MLflow can add components hierarchically to the project; usually, we have a root `Mlproject` linked to a project module `main.py`. This module invokes the components located in different folders and in the desired order. Note that this invocation consists in running `MLprojects`, which in turn execute a command related to the component module. Also, this root-level project module `main.py` reads a `config.yaml` via a `hydra` decorator, which is used by all the components.
+
+Let's consider a project or ML pipeline with two generic components; the file structure could look as follows:
+
+![Simplified project structure](./assets/boilerplate_structure.png)
+
+
+
 
 [tutorials](https://wandb.ai/site/tutorials)
 [documentation](https://docs.wandb.ai/)
 
-![Simplified project structure](./assets/boilerplate_structure.png)
+
 
 ![Simplified project files](./assets/boilerplate_files.png)
 
