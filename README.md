@@ -1,10 +1,19 @@
 # Music Genre Classification: A Boilerplate Reproducible ML Pipeline with MLflow and Weights & Biases
 
-This project is a boilerplate for generating non-complex and reproducible ML pipelines with [MLflow](https://www.mlflow.org) and [Weights and Biases](https://wandb.ai/site). [Scikit-Learn](https://scikit-learn.org/stable/) is used as engine for the data preprocessing and modeling (concretely, a random forests model is trained), and [conda](https://docs.conda.io/en/latest/) as environment management system. The pipeline is divided into the typical steps or components in a pipeline, carried out in order. 
+This project is a boilerplate for generating reproducible Machine Learning (ML) pipelines which are tracked and produce deployable inference artifacts. The used tools are:
+
+- [MLflow](https://www.mlflow.org) for reproduction and management of pipeline processes.
+- [Weights and Biases](https://wandb.ai/site) for artifact and execution tracking.
+- [Hydra](https://hydra.cc) for configuration management.
+- [Conda](https://docs.conda.io/en/latest/) for environment management.
+- [Pandas](https://pandas.pydata.org) for data analysis.
+- [Scikit-Learn](https://scikit-learn.org/stable/) for data modeling.
+  
+The pipeline is divided into the typical steps or components in an ML training pipeline, carried out in order. 
 
 The example comes originally from an exercise in the repository [udacity-cd0581-building-a-reproducible-model-workflow-exercises](https://github.com/mxagar/udacity-cd0581-building-a-reproducible-model-workflow-exercises), which I completed and extended with comments and some other minor features.
 
-The used dataset is a modified version of the [songs in Spotify @ Kaggle](https://www.kaggle.com/datasets/mrmorj/dataset-of-songs-in-spotify): in contains 40k+ song entries, each with 12 features, and the target variable is the genre they belong to. More information on the dataset can be found in the folder `data_analysis`, which is not part of the inference pipeline.
+The used dataset is a modified version of the [songs in Spotify @ Kaggle](https://www.kaggle.com/datasets/mrmorj/dataset-of-songs-in-spotify): in contains 40k+ song entries, each with 12 features, and the target variable is the genre they belong to. More information on the dataset can be found in the folder [`data_analysis`](data_analysis), which is not necessarily part of pipeline.
 
 Table of contents:
 
@@ -28,7 +37,20 @@ Table of contents:
 
 ## Overview of Boilerplate Project Structure
 
-The file structure of the root folder is the following:
+In general, we can say that an ML pipeline has two types of elements:
+
+- **Artifacts**: objects of any kind which are generated or used along the pipeline, e.g., raw or processed datasets, serialized models, etc.
+- **Components** or **steps**: sub-processes that need to be carried out in order to generate an inference pipeline that is able to score new data, e.g., fetch the dataset, clean it, etc.
+
+In this boilerplate, Weights & Biases is used to track artifacts and component executions and MLflow is used to manage those component executions. The following figure summarizes how these ideas are implemented:
+
+![Reproducible ML Pipeline: Generic Workflow](assets/Reproducible_Pipeline.png)
+
+The final product of the ML pipeline is the **inference artifact**, which consists of the *processing pipeline* and the *trained model*.
+
+Note that s
+
+The file structure of the root folder reflects the sequence diagram of the previous figure:
 
 ```
 .
@@ -86,28 +108,28 @@ The file structure of the root folder is the following:
     └── ...
 ```
 
-![Reproducible ML Pipeline: Generic Workflow](assets/Reproducible_Pipeline.png)
+The most important high-level files are `config.yaml` and `main.py`; they contain the parameters and the main pipeline execution order, respectively. Each component or pipeline step has its own project sub-folder, with their `MLproject` and `conda.yaml` files, for `mlflow` and conda environment configuration, respectively. If you'd like to know how these files interact with each other, please look at the section [Notes Hydra, MLflow and Weights & Biases](#notes-hydra-mlflow-and-weights--biases).
 
-The most important high-level files are `config.yaml` and `main.py`; they contain the parameters and the main pipeline execution order, respectively. Each component or pipeline step has its own project sub-folder, with their `MLproject` and `conda.yaml` files, for `mlflow` and conda environment configuration, respectively.
-
-Pipeline steps or components:
+As for the pipeline steps or components, each one has a dedicated folder with a `README.md`; here's a summary of what happens in each component:
 
 1. [`get_data/`](get_data)
     - A parquet file of songs and their attributes is downloaded from a URL; the songs need to be classified according to their genre.
     - The dataset it uploaded to Weights and Biases as an artifact.
 2. [`preprocess/`](preprocess)
-    - Raw dataset artifact is downloaded and preprocessed: missing values imputed and duplicates removed; additionally, a new feature `text_feature` is created.
+    - Raw dataset artifact is downloaded and preprocessed.
+    - The data preprocessing done here is very basic  and specific for the training dataset: cleaning, duplicate removal, etc.
+    - Any transformation of feature engineering required also on new data points should not go here, but in the processing of the `train_random_forest` component.
 3. [`check_data/`](check_data)
     - Data validation: pre-processed dataset is checked using `pytest`.
-    - In the dummy example, the reference and sample datasets are the same, and only deterministic tests are carried out, but we could have used a reference dataset for non-deterministic tests.
+    - In the dummy example, the reference and sample datasets are the same, and only deterministic tests are carried out, but we could have used another reference dataset for non-deterministic (i.e., statistical) tests.
 4. [`segregate/`](segregate)
     - Train/test split is done and the two splits are uploaded as artifacts.
 5. [`train_random_forest/`](random_forest)
     - Component/step with which a random forest model is defined and trained.
     - The training split is subdivided to train/validation.
     - The model is packed in a pipeline which contains data preprocessing and the model itself
-        - The data preprocessing differentiates between numerical/categorical/NLP columns with `ColumnTransformer` and performs imputations, re-shapings, text feature extraction (TDIDF) and scaling.
-        - The model configuration is achieved via a temporary YAML file created in the `main.py` using the parameters from `config.yaml`.
+        - The data preprocessing differentiates between numerical /categorical / NLP columns with `ColumnTransformer` and performs, among others, imputations, re-shapings, text feature extraction (TDIDF) and scaling.
+        - The initial model configuration is achieved via a temporary YAML file created in the `main.py` module using the parameters from `config.yaml`.
     - That inference pipeline is exported and uploaded as an artifact.
     - Performance metrics (AUC) and images (confusion matrix, feature importances) are generated and uploaded as artifacts.
 6. [`evaluate/`](evaluate)
@@ -119,25 +141,27 @@ Note that the folder [`util_lib`](util_lib) is a utility package used by some of
 
 ### Data Analysis and Serving
 
-There are two stand-alone folders/steps that are not part of the inference pipeline; each of them has an explanatory file that extends the current `README.md`:
+There are two stand-alone folders/steps that are not part of the training pipeline; each of them has an explanatory file that extends the current `README.md`:
 
-- [`data_analysis`](data_analysis/README.md): simple Exploratory Data Analysis (EDA), Data Cleaning and Feature Engineering (FE) are performed, as well as data modeling with cross validation to find the optimum hyperparameters. In this folder, the step from a research environment (Jupyter Notebook) to a development environment is shown. The focus doesn't lie on the EDA / FE / Modeling parts, but rather on the transformation of the code for production; if you are interested in the former, you can visit my [Guide on EDA, Data Cleaning and Feature Engineering](https://github.com/mxagar/eda_fe_summary).
+- [`data_analysis`](data_analysis/README.md): simple Exploratory Data Analysis (EDA), Data Cleaning and Feature Engineering (FE) are performed, as well as data modeling with cross validation to find the optimum hyperparameters. This folder contains an exemplary research environment crafted prior to the pipeline and it serves as a sandbox for testing ideas.
 - [`serving`](serving/README.md): the exported inference pipeline artifact is deployed to production using different approaches.
 
 ## How to Use this Guide
 
-1. Have a look at [`data_analysis`](data_analysis/README.md): a simple data preprocessing (+ EDA) is performed to understand the dataset.
-2. Then, you can check the pipeline managed with [MLflow](https://www.mlflow.org) and [Weights and Biases](https://wandb.ai/site): Follow the notes on the [Overview](#overview-of-boilerplate-project-structure) and run the tracked pipeline as explained in [How to Run: Pipeline Creation and Deployment](#how-to-run-pipeline-creation-and-deployment); make sure you have installed the [dependencies](#dependencies).
+1. Optionally, have a look at [`data_analysis`](data_analysis/README.md): a simple data preprocessing (+ EDA) is performed to understand the dataset.
+2. Check the pipeline managed with [MLflow](https://www.mlflow.org) and [Weights and Biases](https://wandb.ai/site): Follow the notes on the [Overview](#overview-of-boilerplate-project-structure).
+3. Optionally, have a look at the section [Notes Hydra, MLflow and Weights & Biases](#notes-hydra-mlflow-and-weights--biases) to understand how the implemented tools interact with each other.
+4. Run the tracked pipeline as explained in [How to Run: Pipeline Creation and Deployment](#how-to-run-pipeline-creation-and-deployment); make sure you have installed the [dependencies](#dependencies).
 
 ## Dependencies
 
-You need to have:
+You need to have, at least:
 
 - [Conda](https://docs.conda.io/en/latest/): environment management.
 - [MLflow](https://www.mlflow.org): management of step parametrized step executions.
 - [Weights and Biases](https://wandb.ai/site): tracking of experiments, artifacts, metrics, etc.
 
-Note that each ML component has its specific `conda` environment, each one specified in their respective `conda.yaml` files. On th eother hand, you can follow this shirt recipe to set up the main environment from which everything is launched:
+The rest is handled by the component-specific `conda.yaml` files. You can follow this short recipe to set up the main environment from which everything is launched:
 
 ```bash
 # Create a basic environment: we use this environment to launch everything
@@ -166,13 +190,11 @@ wandb login
 
 It is possible to automate all that with a `conda.yaml`, but I wanted to leave all steps to make clear what's going on, since this is a boilerplate :wink:
 
-Note that [hydra](https://hydra.cc/docs/intro/) is also employed in the project; the dependency is resolved with the `conda.yaml` environment configuration files.
-
 ## How to Run This: Pipeline Creation and Deployment
 
-This section deals with the creation and deployment of the inference pipeline; if you are interested in the data analysis that precedes it, please check the dedicated folder [`data_analisis`](data_analisis/README.md).
+This section deals with the creation and deployment of the inference pipeline.
 
-First, we need to run the entire pipeline (all steps) at least once (locally or remotely) to generate all the artifacts. For that, we need to be logged with our WandB account. After that, we can perform online/offline predictions with MLflow. The correct model version & co. needs to be checked on the WandB web interface.
+First, we need to run the entire pipeline (all steps) at least once (locally or remotely) to generate all the artifacts. For that, we need to be logged with our Weights and Biases account. After that, we can perform online/offline predictions with MLflow. The correct model version & co. needs to be checked on the W&B web interface.
 
 ### Run the Pipeline to Generate the Inference Artifacts
 
@@ -236,7 +258,9 @@ mlflow run .
 
 ## Notes Hydra, MLflow and Weights & Biases
 
-In this boilerplate, I use
+In this section, I provide a high level explanation of how all the tools interact in the boilerplate; it is intended as a short summary/refresher for my future self. For deeper explanations you can check tutorial and documentation links listed in the section [Interesting Links](#interesting-links).
+
+As a reminder, I use
 
 - [Weights and Biases](https://wandb.ai/site), or `wandb`, for managing artifacts and tracking runs/experiments,
 - [MLflow](https://mlflow.org), or `mlflow`, for managing component/step executions,
@@ -244,43 +268,40 @@ In this boilerplate, I use
 - [Conda](https://docs.conda.io/en/latest/), or `conda`, for environment management,
 - and [Pandas](https://pandas.pydata.org) and [Scikit-Learn](https://scikit-learn.org/stable/) for data analysis and modeling, respectively.
 
-In summary, one could say that `hydra` configures `mlflow`, while `mlflow` manages the execution of pipeline components/steps in isolated `conda` environments, and these components are tracked with `wandb`. At end of the day, the goal is to have a reproducible ML pipeline from which executions and artifacts are tracked. 
+In summary, one could say that `hydra` configures `mlflow`, while `mlflow` manages the execution of pipeline components/steps in isolated `conda` environments, and these components are tracked with `wandb`. At end of the day, the goal is to have an ML pipeline 
+
+- which can be easily **reproduced or re-run**,
+- from which executions and artifacts are **tracked**,
+- and which produces an easily **deployable inference artifact**.
 
 Regarding `wandb` and its tracking functionality, we have the following elements:
 
-- Runs: the minimum unit which is tracked; each component/step creates a unique run when it's executed. Additionally, we can assign a `job_type` tag to a run.
+- Runs: the minimum unit which is tracked; each component/step creates a unique run when it's executed. Additionally, we can assign a `job_type` tag to a run. Runs have usually automatic names.
 - Experiments or groups: collections of runs, e.g., for development.
 - Projects: collections of runs with the same goal, e.g., the project or application itself; usually, all the components are defined under the same project.
 - Artifacts: any file/directory produced during a run; they are all versioned and uploaded if anything changes in their content.
 
-The interaction with `wand` in the code happens in the component modules themselves, and the section [Component Script Structure](#component-script-structure-runpy) shows a schematic but well documented example. But it doesn't end there: all the tracking and lineage information, and more is in the web interface [https://wandb.ai/](https://wandb.ai/). 
+The interaction with `wand` in the code happens in the component modules themselves, and the section [Component Script Structure](#component-script-structure-runpy) shows a schematic but well documented example of the most common interactions. But it doesn't end there: all the tracking and lineage information, and more is on the web interface [https://wandb.ai/](https://wandb.ai/). 
 
-Regarding `mlflow`, we also have `run` objects, but these are treated execution commands of component modules. These executions happen via an `MLproject` configuration file. Each component has an `MLproject` file, which contains
+Regarding `mlflow`, we also have `run` objects, but these are treated as execution commands of component modules. These executions happen via an `MLproject` configuration file. Each component has an `MLproject` file, which contains
 
 - A command that is to be executed; this command usually executes the component module, e.g., `run.py`.
-- The reference of the `conda.yaml` file that defined the environment.
+- The reference of the `conda.yaml` file that defines the environment.
 - A list of parameters that are passed to the executed command as CLI arguments.
 
 MLflow can add components hierarchically to the project; usually, we have a root `Mlproject` linked to a project module `main.py`. This module invokes the components located in different folders and in the desired order. Note that this invocation consists in running `MLprojects`, which in turn execute a command related to the component module. Also, this root-level project module `main.py` reads a `config.yaml` via a `hydra` decorator, which is used by all the components.
 
 Let's consider a project or ML pipeline with two generic components; the file structure could look as follows:
 
-![Simplified project structure](./assets/boilerplate_structure.png)
+![Simplified project structure](./assets/MLflow_WandB_Structure.png)
 
+Everything might sound complicated, but the interaction is implemented in the files very easily and the following figure summarizes how this happens:
 
-
-
-[tutorials](https://wandb.ai/site/tutorials)
-[documentation](https://docs.wandb.ai/)
-
-
-
-![Simplified project files](./assets/boilerplate_files.png)
-
+![Simplified project files](./assets/MLflow_WandB_Files.png)
 
 ### Component Script Structure: `run.py`
 
-In the following, I provide a schematic but extensively commented skeleton of a component module. It shows basically how the tracking is done with `wandb`.
+In the following, I provide a schematic but extensively commented skeleton of a component module; it extends the `run.py` example from the previous image and it shows how the most important `wandb` tracking calls are done.
 
 ```python
 # Imports
@@ -491,6 +512,7 @@ However, these tools can do much more; for instance:
 - `wandb.init(project="my_project", ...)`
 - `ml_pipeline.log`
 - Ignore: `wandb`, `artifacts`, `outputs`, `mlruns`, `ml_pipeline.log`
+- Commit before running.
 
 ## Improvements, Next Steps
 
@@ -503,6 +525,8 @@ However, these tools can do much more; for instance:
 - This repository doesn't focus on the techniques for data processing and modeling; if you are interested in those topics, you can visit my  [Guide on EDA, Data Cleaning and Feature Engineering](https://github.com/mxagar/eda_fe_summary).
 - This project creates an inference pipeline managed with [MLflow](https://www.mlflow.org) and tracked with [Weights and Biases](https://wandb.ai/site); however, it is possible to define a production inference pipeline in a more simple way without the exposure to those 3rd party tools. In [this blog post](https://mikelsagardia.io/blog/machine-learning-production-level.html) I describe how to perform that transformation from research code to production-level code; the associated repository is [customer_churn_production](https://github.com/mxagar/customer_churn_production).
 - If you are interested in more MLOps-related content, you can visit my notes on the [Udacity Machine Learning DevOps Engineering Nanodegree](https://www.udacity.com/course/machine-learning-dev-ops-engineer-nanodegree--nd0821): [mlops_udacity](https://github.com/mxagar/mlops_udacity).
+- [Weights and Biases tutorials](https://wandb.ai/site/tutorials)
+- [Weights and Biases documentation](https://docs.wandb.ai/)
 
 
 ## Authorship
