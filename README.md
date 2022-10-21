@@ -15,6 +15,8 @@ The example comes originally from an exercise in the repository [udacity-cd0581-
 
 The used dataset is a modified version of the [songs in Spotify @ Kaggle](https://www.kaggle.com/datasets/mrmorj/dataset-of-songs-in-spotify): in contains 40k+ song entries, each with 12 features, and the target variable is the genre they belong to. More information on the dataset can be found in the folder [`data_analysis`](data_analysis), which is not necessarily part of pipeline.
 
+All the tracking done with Weights and Biases (W&B) can be accessed at the project page: [wandb.ai/datamix-ai/music_genre_classification](https://wandb.ai/datamix-ai/music_genre_classification).
+
 Table of contents:
 
 - [Music Genre Classification: A Boilerplate Reproducible ML Pipeline with MLflow and Weights & Biases](#music-genre-classification-a-boilerplate-reproducible-ml-pipeline-with-mlflow-and-weights--biases)
@@ -523,6 +525,15 @@ However, these tools can do much more; for instance:
 - We need to put all the W&B runs under the same project so that they can share the same artifacts, since these are named after `<project>/<name>:<version>`: `wandb.init(project="my_project", ...)`. We can control the overall project name with Hydra and the `config.yaml`, too, by setting the environment variable `WANDB_PROJECT`, as done in `main.py`. However, if we run isolated components, that environment variable alone doesn't assign the project name.
 - Use logging, outputted to the file `ml_pipeline.log` in this boilerplate. Note the structure of the logs. Unfortunately, I didn't manage to output test logs with the current setup, though -- fix is coming whenever I have time.
 - when executing the components, folders are generated which we should (git) ignore: `wandb`, `artifacts`, `outputs`, `mlruns`, etc. For instance, artifact object will be in `artifacts/` and they will be managed by the `wandb` API.
+
+To remove all `mlflow` environments that are created:
+
+```bash
+# Get a list of all environments that contain mlflow in their name
+conda info --envs | grep mlflow | cut -f1 -d" "
+# Remove the environments from the above list
+for e in $(conda info --envs | grep mlflow | cut -f1 -d" "); do conda uninstall --name $e --all -y;done
+```
 
 ## Improvements, Next Steps
 
