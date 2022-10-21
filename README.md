@@ -191,7 +191,7 @@ wandb login
 # Done!
 ```
 
-It is possible to automate all that with a `conda.yaml`, but I wanted to leave all steps to make clear what's going on, since this is a boilerplate :wink:
+It is possible to automate all that with a `conda.yaml` and `conda env create`, but I wanted to leave all steps to make clear what's going on, since this is a boilerplate :wink:
 
 ## How to Run This: Pipeline Creation and Deployment
 
