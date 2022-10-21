@@ -528,8 +528,8 @@ However, these tools can do much more; for instance:
 - This repository doesn't focus on the techniques for data processing and modeling; if you are interested in those topics, you can visit my  [Guide on EDA, Data Cleaning and Feature Engineering](https://github.com/mxagar/eda_fe_summary).
 - This project creates an inference pipeline managed with [MLflow](https://www.mlflow.org) and tracked with [Weights and Biases](https://wandb.ai/site); however, it is possible to define a production inference pipeline in a more simple way without the exposure to those 3rd party tools. In [this blog post](https://mikelsagardia.io/blog/machine-learning-production-level.html) I describe how to perform that transformation from research code to production-level code; the associated repository is [customer_churn_production](https://github.com/mxagar/customer_churn_production).
 - If you are interested in more MLOps-related content, you can visit my notes on the [Udacity Machine Learning DevOps Engineering Nanodegree](https://www.udacity.com/course/machine-learning-dev-ops-engineer-nanodegree--nd0821): [mlops_udacity](https://github.com/mxagar/mlops_udacity).
-- [Weights and Biases tutorials](https://wandb.ai/site/tutorials)
-- [Weights and Biases documentation](https://docs.wandb.ai/)
+- [Weights and Biases tutorials](https://wandb.ai/site/tutorials).
+- [Weights and Biases documentation](https://docs.wandb.ai/).
 
 
 ## Authorship
@@ -537,4 +537,4 @@ However, these tools can do much more; for instance:
 Mikel Sagardia, 2022.  
 No guarantees.
 
-If you find this repository helpful and use it, please link to the original source: [https://github.com/mxagar/music_genre_classification](https://github.com/mxagar/music_genre_classification).
+If you find this repository helpful and use it, please link to the original source.
