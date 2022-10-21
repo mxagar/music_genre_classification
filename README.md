@@ -511,11 +511,11 @@ However, these tools can do much more; for instance:
 
 ### Tips and Tricks
 
-- `tempfile.TemporaryDirectory()`, `tempfile.NamedTemporaryFile()`,  or `os.remove(filename)`
-- `wandb.init(project="my_project", ...)`
-- `ml_pipeline.log`
-- Ignore: `wandb`, `artifacts`, `outputs`, `mlruns`, `ml_pipeline.log`
-- Commit always before running.
+- Commit & push always before running. The reason is that we can track simultaneously code version performances and generated artifacts. Additionally, W&B offers the functionality of running a specific commit hash version!
+- Sometimes a component creates new local objects that are uploaded to W&B. After the upload, we don't need them locally and it's a good practice to remove them, e.g., with `os.remove(filename)`. Another option is using `with tempfile.TemporaryDirectory()` or `with tempfile.NamedTemporaryFile()` during the creation.
+- We need to put all the W&B runs under the same project so that they can share the same artifacts, since these are named after `<project>/<name>:<version>`: `wandb.init(project="my_project", ...)`. We can control the overall project name with Hydra and the `config.yaml`, too, by setting the environment variable `WANDB_PROJECT`, as done in `main.py`. However, if we run isolated components, that environment variable alone doesn't assign the project name.
+- Use logging, outputted to the file `ml_pipeline.log` in this boilerplate. Note the structure of the logs. Unfortunately, I didn't manage to output test logs with the current setup, though -- fix is coming whenever I have time.
+- when executing the components, folders are generated which we should (git) ignore: `wandb`, `artifacts`, `outputs`, `mlruns`, etc. For instance, artifact object will be in `artifacts/` and they will be managed by the `wandb` API.
 
 ## Improvements, Next Steps
 
