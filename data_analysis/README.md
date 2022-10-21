@@ -54,6 +54,7 @@ The notebook which shows to the perform the tracking of code runs (in notebooks)
   - Impute missing song and tile values with `''`.
   - Create new text field which is the concatenation of the title and the song name.
 - Finish the run: `run.finish()`.
+- Note: do not close with `Ctrl+C`, but with `File > Close and Halt`.
 
 We can check in the W&B web interface that the artifacts and the run(s) are registered and tracked.
 
