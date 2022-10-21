@@ -221,7 +221,14 @@ mlflow run . -P hydra_options="main.execute_steps='train_random_forest,evaluate'
 mlflow run . -P hydra_options="main.project_name='music_genre_classification_prod'"
 ```
 
-We can also run **isolated project components locally**; for that, we need to `cd` to the selected component and execute `mlflow` with the corresponding arguments. The `README.md` of each component provides the necessary call. However, note that any component needs input artifacts created upstream to be executed successfully -- thus, these must have been already created and stored in the W&B servers.
+We can also run **isolated project components locally**; for that, we need to `cd` to the selected component and execute `mlflow` with the corresponding arguments. The `README.md` of each component provides the necessary call. However, note that any component needs input artifacts created upstream to be executed successfully -- thus, these must have been already created and stored in the W&B servers. My recommended approach is to first run the entire pipeline once and then the selected components from the root level:
+
+```bash
+# Execute everything once at root level
+mlflow run .
+# Run selected components at root level
+mlflow run . -P hydra_options="main.execute_steps='get_data'"
+```
 
 Finally, since the repository is publicly released, anyone can **run the complete project code remotely** as follows:
 

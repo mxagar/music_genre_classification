@@ -24,6 +24,15 @@ mlflow run . \
 -P artifact_description="Data as downloaded"
 ```
 
+However, my recommended approach is to first run the entire pipeline once and then the selected components from the root level:
+
+```bash
+# Execute everything once at root level
+mlflow run .
+# Run selected components at root level
+mlflow run . -P hydra_options="main.execute_steps='get_data'"
+```
+
 MLflow configures the necessary conda environment and executes the following command:
 
 ```bash
