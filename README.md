@@ -289,7 +289,7 @@ In summary, one could say that `hydra` configures `mlflow`, while `mlflow` manag
 Regarding `wandb` and its tracking functionality, we have the following elements:
 
 - Runs: the minimum unit which is tracked; each component/step creates a unique run when it's executed. Additionally, we can assign a `job_type` tag to a run. Runs have usually automatic names.
-- Experiments or groups: collections of runs, e.g., for development.
+- Experiments or groups: collections of runs, e.g., for development / research / production, etc.
 - Projects: collections of runs with the same goal, e.g., the project or application itself; usually, all the components are defined under the same project.
 - Artifacts: any file/directory produced during a run; they are all versioned and uploaded if anything changes in their content.
 
@@ -522,10 +522,11 @@ However, these tools can do much more; for instance:
 
 - Commit & push always before running. The reason is that we can track simultaneously code version performances and generated artifacts. Additionally, W&B offers the functionality of running a specific commit hash version!
 - Sometimes a component creates new local objects that are uploaded to W&B. After the upload, we don't need them locally and it's a good practice to remove them, e.g., with `os.remove(filename)`. Another option is using `with tempfile.TemporaryDirectory()` or `with tempfile.NamedTemporaryFile()` during the creation.
-- We need to put all the W&B runs under the same project so that they can share the same artifacts, since these are named after `<project>/<name>:<version>`: `wandb.init(project="my_project", ...)`. We can control the overall project name with Hydra and the `config.yaml`, too, by setting the environment variable `WANDB_PROJECT`, as done in `main.py`. However, if we run isolated components, that environment variable alone doesn't assign the project name.
+- We need to put all the W&B runs under the same project so that they can share the same artifacts, since these are named on the W&B system after `<project>/<name>:<version>`: `wandb.init(project="my_project", ...)`. We can control the overall project name with Hydra and the `config.yaml`, too, by setting the environment variable `WANDB_PROJECT`, as done in `main.py`. However, if we run isolated components, that environment variable alone doesn't assign the project name.
+- Any time we add an artifact, the name doesn't have the version; but when we get/download an artifact, we need to specify it with `<artifact_name>:<version>`. If we have not specified the project name anywhere, it needs to be `<project_name>/<artifact_name>:<version>`. Usually we use `version=latest`, but we should check the W&B web interface to select the desired one.
 - Use logging, outputted to the file `ml_pipeline.log` in this boilerplate. Note the structure of the logs. Unfortunately, I didn't manage to output test logs with the current setup, though -- fix is coming whenever I have time.
 - When executing the components, folders are generated which we should (git) ignore: `wandb`, `artifacts`, `outputs`, `mlruns`, etc. For instance, artifact object will be in `artifacts/` and they will be managed by the `wandb` API.
-- When adding components in `main.py` these can be online/git repositories; we just provide the proper URL and that's it. However, we might need to specify the branch with the parameter `version` in the `mlflow.run()` call, because `mlflow` defaults to use `master`.
+- When adding components in `main.py` these can be online/git repositories; we just provide the proper URL and that's it. However, we might need to specify the branch with the parameter `version` in the `mlflow.run()` call, because `mlflow` defaults to use `master`. An example of this is shown in my repository [ml_pipeline_rental_prices](https://github.com/mxagar/ml_pipeline_rental_prices).
 
 
 To remove all `mlflow` environments that are created:
@@ -547,6 +548,7 @@ for e in $(conda info --envs | grep mlflow | cut -f1 -d" "); do conda uninstall 
 
 - This repository doesn't focus on the techniques for data processing and modeling; if you are interested in those topics, you can visit my  [Guide on EDA, Data Cleaning and Feature Engineering](https://github.com/mxagar/eda_fe_summary).
 - This project creates an inference pipeline managed with [MLflow](https://www.mlflow.org) and tracked with [Weights and Biases](https://wandb.ai/site); however, it is possible to define a production inference pipeline in a more simple way without the exposure to those 3rd party tools. In [this blog post](https://mikelsagardia.io/blog/machine-learning-production-level.html) I describe how to perform that transformation from research code to production-level code; the associated repository is [customer_churn_production](https://github.com/mxagar/customer_churn_production).
+- Another example where a reproducible ML pipeline is created using the same tools: [Reproducible Machine Learning pipeline that predicts short-term rental prices in New York](https://github.com/mxagar/ml_pipeline_rental_prices).
 - If you are interested in more MLOps-related content, you can visit my notes on the [Udacity Machine Learning DevOps Engineering Nanodegree](https://www.udacity.com/course/machine-learning-dev-ops-engineer-nanodegree--nd0821): [mlops_udacity](https://github.com/mxagar/mlops_udacity).
 - [Weights and Biases tutorials](https://wandb.ai/site/tutorials).
 - [Weights and Biases documentation](https://docs.wandb.ai/).
