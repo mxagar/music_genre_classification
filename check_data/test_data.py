@@ -126,6 +126,13 @@ def test_column_ranges(data):
         except AssertionError as err:
             logger.error("test_column_ranges: %s not in range.", col_name)
 
+    # Note: another way is using between(),
+    # which yields True/False for each row:
+    #   idx = df[col].between(min_val, max_val)
+    #   assert np.sum(~idx) == 0
+
+    assert np.sum(~idx) == 0
+
     logger.info("test_column_ranges: SUCCESS!")
 
 def test_kolmogorov_smirnov(data, ks_alpha):
