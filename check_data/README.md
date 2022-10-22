@@ -78,4 +78,15 @@ Also, note that data checks can be:
 - Deterministic: column names, types, sizes, ranges, etc.
 - Non-deterministic: statistical, e.g., T-Tests (parametric) / Kolgomorov-Smirnov Tests (non-parametric), etc. To perform these types of tests we need at least a reference dataset in addition to the current one tested.
 
+An alternative to T-Tests or Kolgomorov-Smirnov tests well suited for categorical data is the entropy:
+
+```python
+import scipy.stats
+
+dist1 = df['categorical_col'].value_counts().sort_index()
+dist2 = df_ref['categorical_col'].value_counts().sort_index()
+
+assert scipy.stats.entropy(dist1, dist2, base=2) < kl_threshold
+```
+
 :warning: Important note: the current implementation fails to perform logging into the external logging file `../ml_pipeline.log`. I tried to [invoke pytest from python code](hhttps://docs.pytest.org/en/7.1.x/how-to/usage.html#calling-pytest-from-python-code) by defining `__main__`  in `test_data.py` but it didn't work.
