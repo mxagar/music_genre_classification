@@ -26,7 +26,7 @@ def go(config: DictConfig):
         steps_to_execute = config["main"]["execute_steps"]
 
     if "get_data" in steps_to_execute:
-
+        # mlflow run . -P hydra_options="main.execute_steps='get_data'"
         _ = mlflow.run(
             os.path.join(root_path, "get_data"), # path of component
             "main", # entry point
@@ -39,11 +39,7 @@ def go(config: DictConfig):
         )
 
     if "preprocess" in steps_to_execute:
-
-        # --input_artifact {input_artifact}
-        # --artifact_name {artifact_name}
-        # --artifact_type {artifact_type}
-        # --artifact_description {artifact_description}
+        # mlflow run . -P hydra_options="main.execute_steps='preprocess'"
         _ = mlflow.run(
             os.path.join(root_path, "preprocess"),
             "main",
@@ -57,10 +53,7 @@ def go(config: DictConfig):
         )
         
     if "check_data" in steps_to_execute:
-
-        # --reference_artifact {reference_artifact}
-        # --sample_artifact {sample_artifact}
-        # --ks_alpha {ks_alpha}
+        # mlflow run . -P hydra_options="main.execute_steps='check_data'"
         _ = mlflow.run(
             os.path.join(root_path, "check_data"),
             "main",
@@ -72,13 +65,7 @@ def go(config: DictConfig):
         )
 
     if "segregate" in steps_to_execute:
-
-        # --input_artifact {input_artifact}
-        # --artifact_root {artifact_root}
-        # --artifact_type {artifact_type}
-        # --test_size {test_size}
-        # --random_state {random_state}
-        # --stratify {stratify}
+        # mlflow run . -P hydra_options="main.execute_steps='segregate'"
         _ = mlflow.run(
             os.path.join(root_path, "segregate"),
             "main",
@@ -107,12 +94,7 @@ def go(config: DictConfig):
         with open(model_config, "w+") as fp:
             fp.write(OmegaConf.to_yaml(config["random_forest_pipeline"]))
 
-        # --train_data {train_data}
-        # --model_config {model_config}
-        # --export_artifact {export_artifact}
-        # --random_seed {random_seed}
-        # --val_size {val_size}
-        # --stratify {stratify}
+        # mlflow run . -P hydra_options="main.execute_steps='train_random_forest'"
         _ = mlflow.run(
             os.path.join(root_path, "train_random_forest"),
             "main",
@@ -127,9 +109,7 @@ def go(config: DictConfig):
         )
 
     if "evaluate" in steps_to_execute:
-
-        # --model_export {model_export}
-        # --test_data {test_data}
+        # mlflow run . -P hydra_options="main.execute_steps='evaluate'"
         _ = mlflow.run(
             os.path.join(root_path, "evaluate"),
             "main",
