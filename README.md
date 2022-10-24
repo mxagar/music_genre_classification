@@ -559,6 +559,8 @@ for e in $(conda info --envs | grep mlflow | cut -f1 -d" "); do conda uninstall 
 
 - This repository doesn't focus on the techniques for data processing and modeling; if you are interested in those topics, you can visit my  [Guide on EDA, Data Cleaning and Feature Engineering](https://github.com/mxagar/eda_fe_summary).
 - This project creates an inference pipeline managed with [MLflow](https://www.mlflow.org) and tracked with [Weights and Biases](https://wandb.ai/site); however, it is possible to define a production inference pipeline in a more simple way without the exposure to those 3rd party tools. In [this blog post](https://mikelsagardia.io/blog/machine-learning-production-level.html) I describe how to perform that transformation from research code to production-level code; the associated repository is [customer_churn_production](https://github.com/mxagar/customer_churn_production).
+- [Weights & Biases Model Registry](https://docs.wandb.ai/guides/models).
+- [Machine learning model serving for newbies with MLflow](https://towardsdatascience.com/machine-learning-model-serving-for-newbies-with-mlflow-76f9f0ac3cb2).
 - Another example where a reproducible ML pipeline is created using the same tools: [Reproducible Machine Learning pipeline that predicts short-term rental prices in New York](https://github.com/mxagar/ml_pipeline_rental_prices).
 - If you are interested in more MLOps-related content, you can visit my notes on the [Udacity Machine Learning DevOps Engineering Nanodegree](https://www.udacity.com/course/machine-learning-dev-ops-engineer-nanodegree--nd0821): [mlops_udacity](https://github.com/mxagar/mlops_udacity).
 - [Weights and Biases tutorials](https://wandb.ai/site/tutorials).
