@@ -9,7 +9,7 @@ print(data)
 # JSON has an issue with fields that contain NaN/nan
 # They need to be converted to a null string in the JSON file itself (nan -> null)
 # or to None in Python.
-# One option should be to use yaml.safe_load() instead of yaml.load()?
+# One option should be to use YAML and yaml.safe_load()?
 # Another possible solution in Python is the following:
 import math
 import numpy as np

@@ -25,7 +25,7 @@ Table of contents:
   - [How to Use this Guide](#how-to-use-this-guide)
   - [Dependencies](#dependencies)
   - [How to Run This: Pipeline Creation and Deployment](#how-to-run-this-pipeline-creation-and-deployment)
-    - [Run the Pipeline to Generate the Inference Artifacts](#run-the-pipeline-to-generate-the-inference-artifacts)
+    - [Run the Pipeline to Generate the Inference Artifact(s)](#run-the-pipeline-to-generate-the-inference-artifacts)
     - [Deployment: Use the Inference Artifacts for Performing Predictions](#deployment-use-the-inference-artifacts-for-performing-predictions)
   - [Notes Hydra, MLflow and Weights & Biases](#notes-hydra-mlflow-and-weights--biases)
     - [Component Script Structure: `run.py`](#component-script-structure-runpy)
@@ -201,7 +201,7 @@ This section deals with the creation and deployment of the inference pipeline.
 
 First, we need to run the entire pipeline (all steps) at least once (locally or remotely) to generate all the artifacts. For that, we need to be logged with our Weights and Biases account. After that, we can perform online/offline predictions with MLflow. The correct model version & co. needs to be checked on the W&B web interface.
 
-### Run the Pipeline to Generate the Inference Artifacts
+### Run the Pipeline to Generate the Inference Artifact(s)
 
 In order to **run the complete project code locally**:
 
@@ -232,7 +232,7 @@ mlflow run .
 mlflow run . -P hydra_options="main.execute_steps='get_data'"
 ```
 
-Finally, since the repository is publicly released, anyone can **run the complete project code remotely** as follows:
+Finally, since the repository is public, anyone can **run the complete project code remotely**; additionally, we can also create Github project/repository releases and run them with their tag:
 
 ```bash
 # Go to a new empty folder
@@ -240,11 +240,17 @@ cd new-empty-folder
 
 # General command
 mlflow run -v [commit hash or branch name] [URL of your Github repo]
-
-# Concrete command for the exercise in section 6.1
-# We point to the commit hash of tag 0.0.1
-# Note: currently, we cannot put tag names in -v
+# Concrete command
 mlflow run -v 82f17d94e0800811e81f4d55c0442d3189ed0a63 git@github.com:mxagar/music_genre_classification.git
+
+# If we create a Release on Github, we can run that specific release remotely, too
+# Create a release 0.0.1 on Github: 
+#   https://github.com/mxagar/music_genre_classification/releases
+#   Draft a new release
+#   Choose tag: write a Major.Minor.Patch version number
+# Then, to run that release tag remotely
+mlflow run https://github.com/mxagar/music_genre_classification.git \
+-v 0.0.1
 
 # Project name changed
 # We point to the branch main; usually, we should point to a branch like master / stable, etc.
@@ -516,7 +522,7 @@ However, these tools can do much more; for instance:
 
 - [MLflow can track](https://www.mlflow.org/docs/latest/tracking.html).
 - [W&B has a model registry](https://wandb.ai/registry/model).
-- [Hydra can be used for more complex hierarchical configurations by composition and override through config files and the command line](https://hydra.cc/docs/intro/).
+- [Hydra can be used for more complex hierarchical configurations by composition and override through config files and the command line](https://hydra.cc/docs/intro/). We can also perform Bayesian optimization of the hyperparameters without modifying the pipeline!
 
 ### Tips and Tricks
 
@@ -527,6 +533,11 @@ However, these tools can do much more; for instance:
 - Use logging, outputted to the file `ml_pipeline.log` in this boilerplate. Note the structure of the logs. Unfortunately, I didn't manage to output test logs with the current setup, though -- fix is coming whenever I have time.
 - When executing the components, folders are generated which we should (git) ignore: `wandb`, `artifacts`, `outputs`, `mlruns`, etc. For instance, artifact object will be in `artifacts/` and they will be managed by the `wandb` API.
 - When adding components in `main.py` these can be online/git repositories; we just provide the proper URL and that's it. However, we might need to specify the branch with the parameter `version` in the `mlflow.run()` call, because `mlflow` defaults to use `master`. An example of this is shown in my repository [ml_pipeline_rental_prices](https://github.com/mxagar/ml_pipeline_rental_prices).
+- A `wandb.Artifact()` has a parameter `metadata` which can take as value a dictionary; we can save there a configuration dictionary, e.g., in the case of an inference artifact, the model configuration parameters.
+- In the current project, hydra loads the `config.yaml` file and extracts the model configuration part to a temporary file/dictionary using [OmegaConf](https://omegaconf.readthedocs.io/en/2.2_branch/). However, we can also do that without the OmegaConf dependency; an example is given in my repository [ml_pipeline_rental_prices](https://github.com/mxagar/ml_pipeline_rental_prices).
+- Use Github releases to freeze concrete versions and enable remote execution (see section [Run the Pipeline to Generate the Inference Artifact(s)](#run-the-pipeline-to-generate-the-inference-artifacts)).
+- Add the tag `prod` to the artifacts that will be used in production on the web interface of W&B; then, in the API call, we use the artifact name `<artifact_name>:prod`.
+- The transformer `sklearn.preprocessing.FunctionTransformer` can be used to convert any custom function into a transformer! That's very useful! There is an example with a library function in the component `train_rancom_forest`; additionally, I have another example in my repository [ml_pipeline_rental_prices](https://github.com/mxagar/ml_pipeline_rental_prices).
 
 
 To remove all `mlflow` environments that are created:
