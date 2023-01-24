@@ -19,7 +19,7 @@ All the tracking done with Weights and Biases (W&B) can be accessed at the proje
 
 Table of contents:
 
-- [Music Genre Classification: A Boilerplate Reproducible ML Pipeline with MLflow and Weights & Biases](#music-genre-classification-a-boilerplate-reproducible-ml-pipeline-with-mlflow-and-weights--biases)
+- [Music Genre Classification: A Boilerplate Reproducible ML Pipeline with MLflow and Weights \& Biases](#music-genre-classification-a-boilerplate-reproducible-ml-pipeline-with-mlflow-and-weights--biases)
   - [Overview of Boilerplate Project Structure](#overview-of-boilerplate-project-structure)
     - [Data Analysis and Serving](#data-analysis-and-serving)
   - [How to Use this Guide](#how-to-use-this-guide)
@@ -27,11 +27,11 @@ Table of contents:
   - [How to Run This: Pipeline Creation and Deployment](#how-to-run-this-pipeline-creation-and-deployment)
     - [Run the Pipeline to Generate the Inference Artifact(s)](#run-the-pipeline-to-generate-the-inference-artifacts)
     - [Deployment: Use the Inference Artifacts for Performing Predictions](#deployment-use-the-inference-artifacts-for-performing-predictions)
-  - [Notes Hydra, MLflow and Weights & Biases](#notes-hydra-mlflow-and-weights--biases)
+  - [Notes Hydra, MLflow and Weights \& Biases](#notes-hydra-mlflow-and-weights--biases)
     - [Component Script Structure: `run.py`](#component-script-structure-runpy)
     - [Tracked Experiments and Hyperparameter Tuning](#tracked-experiments-and-hyperparameter-tuning)
       - [Hyperparameter Tuning with Hydra Sweeps](#hyperparameter-tuning-with-hydra-sweeps)
-    - [MLflow Tracking and W&B Model Registries](#mlflow-tracking-and-wb-model-registries)
+    - [MLflow Tracking and W\&B Model Registries](#mlflow-tracking-and-wb-model-registries)
     - [Tips and Tricks](#tips-and-tricks)
   - [Improvements, Next Steps](#improvements-next-steps)
   - [Interesting Links](#interesting-links)
@@ -559,6 +559,7 @@ for e in $(conda info --envs | grep mlflow | cut -f1 -d" "); do conda uninstall 
 
 - This repository doesn't focus on the techniques for data processing and modeling; if you are interested in those topics, you can visit my  [Guide on EDA, Data Cleaning and Feature Engineering](https://github.com/mxagar/eda_fe_summary).
 - This project creates an inference pipeline managed with [MLflow](https://www.mlflow.org) and tracked with [Weights and Biases](https://wandb.ai/site); however, it is possible to define a production inference pipeline in a more simple way without the exposure to those 3rd party tools. In [this blog post](https://mikelsagardia.io/blog/machine-learning-production-level.html) I describe how to perform that transformation from research code to production-level code; the associated repository is [customer_churn_production](https://github.com/mxagar/customer_churn_production).
+- If you are interested in the automated deployment of production-ready ML pipelines packaged in APIs, check my example repository [census_model_deployment_fastapi](https://github.com/mxagar/census_model_deployment_fastapi).
 - [Weights & Biases Model Registry](https://docs.wandb.ai/guides/models).
 - [Machine learning model serving for newbies with MLflow](https://towardsdatascience.com/machine-learning-model-serving-for-newbies-with-mlflow-76f9f0ac3cb2).
 - Another example where a reproducible ML pipeline is created using the same tools: [Reproducible Machine Learning pipeline that predicts short-term rental prices in New York](https://github.com/mxagar/ml_pipeline_rental_prices).
